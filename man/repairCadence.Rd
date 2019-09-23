@@ -5,7 +5,7 @@
 \title{clean up cadence data for a track}
 \usage{
 repairCadence(trackdf, fixCadence = TRUE, cadMax = 160, cadMin = 0,
-  cadCorrectTooHigh = TRUE, cadStuckMin = 0, cadStuckRep = 4,
+  cadCorrectTooHigh = TRUE, cadStuckMax = 0, cadStuckRep = 4,
   cadStuckSpdDelta = 0.07, cadCorrectStopped = TRUE,
   cadCorrectNA = FALSE, cadCorrectWindowSec = 7, loud = FALSE, ...)
 }
@@ -22,7 +22,7 @@ repairCadence(trackdf, fixCadence = TRUE, cadMax = 160, cadMin = 0,
 using triangular-kernel-weighted average of the nearest nonmissing values
 in the same segment}
 
-\item{cadStuckMin}{threshold cadence value for removing repeated low values,
+\item{cadStuckMax}{threshold cadence value for removing repeated low values,
 useful for some sensor/GPS combinations.  0 means no checking for this.}
 
 \item{cadStuckRep}{minimum length of runs of low cadence values to remove,

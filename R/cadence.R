@@ -108,7 +108,7 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #' @param cadCorrectTooHigh repair excessive cadence values
 #'    using triangular-kernel-weighted average of the nearest nonmissing values
 #'    in the same segment
-#' @param cadStuckMin threshold cadence value for removing repeated low values,
+#' @param cadStuckMax threshold cadence value for removing repeated low values,
 #'    useful for some sensor/GPS combinations.  0 means no checking for this.
 #' @param cadStuckRep minimum length of runs of low cadence values to remove,
 #'    useful for some sensor/GPS combinations
@@ -139,7 +139,7 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #' @export
 repairCadence <- function(trackdf,fixCadence=TRUE,
                           cadMax=160,cadMin=0,cadCorrectTooHigh=TRUE,
-                          cadStuckMin=0,cadStuckRep=4,cadStuckSpdDelta=0.07,
+                          cadStuckMax=0,cadStuckRep=4,cadStuckSpdDelta=0.07,
                           cadCorrectStopped=TRUE,cadCorrectNA=FALSE,
                           cadCorrectWindowSec=7,loud=FALSE,...) {
   trackdf$cadence.uncorrected <- trackdf$cadence.rpm
@@ -192,7 +192,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
 
   ######   Cadence stuck on low value
   nCadStuck <- 0
-  if (cadStuckMin > 0) {
+  if (cadStuckMax > 0) {
     cadrle <- rle(trackdf$cadence.rpm)
     cadrlestops <- cumsum(cadrle[["lengths"]])
     cadrlestarts <- c(0,cadrlestops[-length(cadrlestops)]) + 1
@@ -205,7 +205,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
       !is.na(cadrle[["values"]]) &
       cadrle[["values"]] > 0 &
       #  stuck value is less than threshold
-      cadrle[["values"]] <= cadStuckMin &
+      cadrle[["values"]] <= cadStuckMax &
       #  run of stuck values is long enough
       cadrle[["lengths"]] >= cadStuckRep &
       #  run hits a stop or next cadence is zero
