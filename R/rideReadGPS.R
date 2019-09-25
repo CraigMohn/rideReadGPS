@@ -7,7 +7,6 @@
 #' @import magrittr tibble dplyr stringr
 #' @import XML
 #' @importFrom stats approx median quantile setNames weighted.mean
-#' @importFrom fitdc read_fit
 #' @importFrom raster pointDistance
 #' @importFrom lubridate mday month year second minute hour ymd_hms
 #' @importFrom doParallel registerDoParallel stopImplicitCluster

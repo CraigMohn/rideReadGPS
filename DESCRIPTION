@@ -5,9 +5,10 @@ Version: 0.5.0
 Author: Craig Mohn
 Maintainer: Craig Mohn <craig.mohn.projects@gmail.com>
 Depends: R (>= 3.0)
-Imports: magrittr, tibble, dplyr, raster, XML, doParallel, fitdc,
-    foreach, lubridate, stringr, fitparseR
-Remotes: CraigMohn/fitparseR
+Imports: magrittr, tibble, dplyr, raster, XML, doParallel,
+    foreach, lubridate, stringr
+Suggests: fitdc, fitparseR
+Remotes: CraigMohn/fitparseR 
 Description: A package for reading cycling .fit and .gpx files into 
     dataframes containing (corrected) trackpoints and summary statistic.
 License: GPL-3

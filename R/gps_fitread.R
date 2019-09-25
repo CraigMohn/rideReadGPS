@@ -2,10 +2,16 @@ read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
 
   requiredVars <- c("altitude.m", "distance.m", "heart_rate.bpm", "speed.m.s",
                     "timestamp.s", "cadence.rpm", "power.watts")
-  if (usefitdc) {
-    dflist <- read_fitdc(fitfile, requiredVars=requiredVars)
-  } else {
+  if (usefitdc)  {
+    if (requireNamespace("fitdc", quietly=TRUE)) {
+      dflist <- read_fitdc(fitfile, requiredVars=requiredVars)
+    } else {
+      stop("package fitdc muat be installed if usefitdc=TRUE")
+    }
+  } else if (requireNamespace("fitparseR",quietly=TRUE)) {
     dflist <- read_fitPython(fitfile, requiredVars=requiredVars)
+  } else {
+    stop("package fitparseR must be installed if not using package fitdc")
   }
   records <- dflist[["records"]]
   session <- dflist[["session"]]
