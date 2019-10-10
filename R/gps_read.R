@@ -19,7 +19,7 @@
 #'
 #' @export
 read_ridefiles <- function(ridefilevec,cores=4,
-                           usefitdc=FALSE,loud=loud,...)  {
+                           usefitdc=FALSE,loud=FALSE,...)  {
 
   nfiles <- length(ridefilevec)
   if(missing(cores)) cores <- parallel::detectCores()

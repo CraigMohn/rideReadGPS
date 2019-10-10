@@ -75,7 +75,8 @@ powerAvgs <- function(trackdf,...) {
 repairPower <- function(trackdf,loud=FALSE,...) {
 
   powerfixed <- excludeCalibrate(trackdf$deltatime,
-                                 trackdf$power.watts,...)
+                                 trackdf$power.watts,
+                                 loud=loud,...)
   if (powerfixed[["calSeqs"]] > 0){
     trackdf$power.uncorrected <- trackdf$power.watts
     trackdf$power.watts < -powerfixed[["power"]]
@@ -119,16 +120,31 @@ excludeCalibrate <- function(deltatime,watts,afterlast=TRUE,
                              maxminCalWatts=3,minmaxCalWatts=98,
                              maxCalBurstSecs=5,minBurstSize=2000,
                              loud=FALSE,...) {
+
   outwatts <- watts
   numSeqs <- 0
   if (sum(!is.na(watts)) > 0) {
     clock <- cumsum(deltatime)
-    #  work on zeros removed and NAs removed - times will be the same
+    #  work with zeros removed and NAs removed - times will be the same
     idxpos <- !is.na(watts) & (watts > 0)
-    pwatts <- watts[idxpos]
     pclock <- clock[idxpos]
+    pwatts <- watts[idxpos]
     laggedpWatts <- c(0,pwatts[-length(pwatts)])
     leadpWatts <- c(pwatts[-1],NA)
+    # pick up places where power reading halved at restart and then some,
+    #  but never gonna have enough false positives to matter
+    halfpower <- !is.na(leadpWatts) &
+                 (pwatts <= 45) & (pwatts >= 5) &
+                 ((laggedpWatts <= 2*pwatts) & (2*pwatts <= leadpWatts)) &
+                 !((laggedpWatts <= pwatts) & (pwatts <= leadpWatts))
+    if (sum(halfpower) > 0) {
+      pclock <- pclock[!halfpower]
+      pwatts <- pwatts[!halfpower]
+      laggedpWatts <- c(0,pwatts[-length(pwatts)])
+      leadpWatts <- c(pwatts[-1],NA)
+    }
+
+
     inRun <- (pwatts <= maxCalWatts) &
       (((pwatts <= leadpWatts) & (pwatts + maxCalDelta >= leadpWatts)) |
          ((pwatts >= minmaxCalWatts) & (pwatts >= laggedpWatts)))
@@ -148,7 +164,10 @@ excludeCalibrate <- function(deltatime,watts,afterlast=TRUE,
     }
     numSeqs <- length(runStarts)
     if (length(runStarts)>0) {
-      if (loud) cat("***##*** calibration","\n")
+      if (loud) {
+        cat("***##*** calibration","\n")
+        if (sum(halfpower) > 0) cat(sum(halfpower)," possible half-power obs ignored \n")
+      }
       changed <- TRUE
       if (length(runStarts)>1 ) {
         cat("****** multiple calibration sequences found ******","\n")
