@@ -192,6 +192,7 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
   gearStats <- statsGearing(trackdf=trackdata,...)
   climbStats <- statsGrade(trackdf=trackdata,...)
   stopsStats <- statsStops(trackdf=trackdata,...)
+  tempStats <- statsTemp(trackdf=trackdata)
 
   if (!is.na(trackdata$position_lon.dd[1])){
     begEndGap <-
@@ -252,6 +253,9 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
                        speed.all.m.s = trackdata$distance.m[nrow(trackdata)]/
                                               totalTime(trackdata),
                        speed.max.m.s = max(trackdata$speed.m.s,na.rm=TRUE),
+                       temp.C.mean = tempStats[["meanTemp"]],
+                       temp.C.min = tempStats[["minTemp"]],
+                       temp.C.max = tempStats[["maxTemp"]],
                        avgcadence.nozeros.session = cadStats[["avgcadenceNoZerosSession"]],
                        avgcadence.withzeros.session = cadStats[["avgcadenceWithZerosSession"]],
                        avgcadence.nozeros = cadStats[["avgcadenceNoZerosSum"]],
