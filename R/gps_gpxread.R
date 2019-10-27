@@ -15,6 +15,7 @@ read_gpxtrack <- function(gpxfile)  {
   altitude.m <- vector("numeric",ntrackpoints)
   heart_rate.bpm <- vector("numeric",ntrackpoints)
   cadence.rpm <- vector("numeric",ntrackpoints)
+  temperature.C <- vector("numeric",ntrackpoints)
   distance.m <- vector("numeric",ntrackpoints)
   speed.m.s <- vector("numeric",ntrackpoints)
   power.watts <- vector("numeric",ntrackpoints)
@@ -42,6 +43,7 @@ read_gpxtrack <- function(gpxfile)  {
       position_lat.dd[segbeg:segend] <- subtrack$lat
       position_lon.dd[segbeg:segend] <- subtrack$lon
       altitude.m[segbeg:segend] <- as.numeric(subtrack$ele)
+      temperature.C[segbeg:segend] <- subtrack$atemp
       cadence.rpm[segbeg:segend] <- subtrack$cad
       heart_rate.bpm[segbeg:segend] <- subtrack$hr
       distance.m[segbeg:segend] <- distcum + cumsum(tempdspace)
@@ -52,11 +54,13 @@ read_gpxtrack <- function(gpxfile)  {
       segbeg <- segend + 1
     }
   }
-  timestamp.s <- as.POSIXct(strptime(timestamp.s,"%Y-%m-%dT%H:%M:%SZ",tz="UTC"))
+  timestamp.s <- gsub(".000Z","Z",timestamp.s)
+  timestamp.s <- as.POSIXct(strptime(timestamp.s,"%FT%TZ",tz="UTC"))
     #arrange by timestamp
     track <- data_frame(segment,timestamp.s,
                         position_lat.dd,position_lon.dd,altitude.m,
-                        cadence.rpm,heart_rate.bpm,distance.m,speed.m.s,power.watts)
+                        cadence.rpm,heart_rate.bpm,distance.m,speed.m.s,
+                        power.watts,temperature.C)
     return(list(track=track,recovery_hr=NULL,session=NULL))
 }
 
@@ -111,6 +115,9 @@ readGPXhrcad <- function(gpx.file) {
                 li <- newXMLNode(xmlGetAttr(z, "cad", xmlName(z)))
                 addChildren(li, newXMLTextNode(xmlGetAttr(z, "value",NA)))
                 addChildren(row, li)
+                li <- newXMLNode(xmlGetAttr(z, "atemp", xmlName(z)))
+                addChildren(li, newXMLTextNode(xmlGetAttr(z, "value",NA)))
+                addChildren(row, li)
               }
               addChildren(xmlRoot(trn), row)
             }
@@ -125,6 +132,7 @@ readGPXhrcad <- function(gpx.file) {
             trackret[[c]][[i]][1:length(lat),"lat"] <- lat
             trackret[[c]][[i]][1:length(lat),"hr"] <- as.numeric(NA)
             trackret[[c]][[i]][1:length(lat),"cad"] <- as.numeric(NA)
+            trackret[[c]][[i]][1:length(lat),"atemp"] <- as.numeric(NA)
             if(!nm[[1]]=="NULL"){
               for(j in 1:length(nm)){
                 xm <- as.character(sapply(sapply(xmlChildren(trkpt), function(x) x[[nm[[j]]]]), xmlValue))
@@ -146,6 +154,8 @@ readGPXhrcad <- function(gpx.file) {
                     if (length(hr)>0) trackret[[c]][[i]][tpt,"hr"]  <- as.integer(xmlValue(hr[[1]]))
                     cad <- xmlElementsByTagName(trkpt[[tpt]],"cad",recursive=TRUE)
                     if (length(cad)>0) trackret[[c]][[i]][tpt,"cad"]<- as.integer(xmlValue(cad[[1]]))
+                    atemp <- xmlElementsByTagName(trkpt[[tpt]],"atemp",recursive=TRUE)
+                    if (length(atemp)>0) trackret[[c]][[i]][tpt,"atemp"]<- as.integer(xmlValue(atemp[[1]]))
                   }
                 }
               }
