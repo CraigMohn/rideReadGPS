@@ -67,7 +67,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #'   are repaired, and summary stats are calculated for analysis.
 #'
 #' @param ridefile a filenames (.fit or .gpx extension) to process
-#' @param tz string contaiing timezone for converting from UTC
+#' @param tz string containing the timezone for the track data frame
 #' @param fixDistance repair nonmonotonicities in distance which are on
 #'    segment breaks - this occurs when power is lost or on some device lockups
 #' @param stopSpeed - speed in m/s below which the bike is considered stopped
@@ -75,6 +75,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #' @param loud print information about hr/cadence data issues/fixes
 #' @param loudSegment print information about re/segmenting track data
 #' @param usefitdc use package fitdc to read fit files instead of fitparse
+#' @param lutzmethod method to use to locate tomezone, see package lutz
 #' @param ... parameters for \code{\link{processSegments}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
@@ -104,10 +105,10 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #'    \code{\link{statsStops}}
 #'
 #' @export
-read_ride <- function(ridefile,tz="America/Los_Angeles",
+read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                       stopSpeed=0.0,
                       fixDistance=FALSE,loud=FALSE,loudSegment=FALSE,
-                      usefitdc=FALSE,...)  {
+                      usefitdc=FALSE,lutzmethod="fast",...)  {
 
   cat("\nreading: ",ridefile,"\n")
   if (missing(tz)) {
@@ -123,7 +124,7 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
       substr(time.fn.string,
              regexpr(fit.fn.lead,time.fn.string)+nchar(fit.fn.lead)+1,1000000)
     if (nchar(fit.fn.trail)>0) time.fn.string <-
-      substr(time.fn.string,1,regexpr(fit.fn.trail,time.fn.string))
+      substr(time.fn.string,1,regexpr(fit.fn.trail,time.fn.string)-1)
     time.turned.on <- strptime(time.fn.string,fit.fn.time.parse,tz=tz)
   } else if (substr(ridefile,nchar(ridefile)-3,nchar(ridefile))==".gpx") {
     temp <- read_gpxtrack(ridefile)
@@ -133,9 +134,9 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
     gpx.fn.trail <- getOption("bCadHr.gpx.fn.trail")
     if (nchar(gpx.fn.lead)>0) time.fn.string <-
       substr(time.fn.string,
-             regexpr(gpx.fn.lead,time.fn.string)+nchar(fit.fn.lead)+1,1000000)
+             regexpr(gpx.fn.lead,time.fn.string)+nchar(gpx.fn.lead)+1,1000000)
     if (nchar(gpx.fn.trail)>0) time.fn.string <-
-      substr(time.fn.string,1,regexpr(gpx.fn.trail,time.fn.string))
+      substr(time.fn.string,1,regexpr(gpx.fn.trail,time.fn.string)-1)
     time.turned.on <- strptime(time.fn.string,gpx.fn.time.parse,tz=tz)
   } else {
     stop("unknown file extension")
@@ -148,6 +149,7 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
     #  if filename not successfully turned into a start-button time, use 1st
     #   timestamp value recorded in the track.  Likely but not certain to match
     #   between different versions of the same ride
+    if (loud) print(" setting time.turned.on to first obs")
     time.turned.on <- trackdata$timestamp.s[1]
   }
   startbuttonDate <- as.integer(lubridate::mday(time.turned.on)+
@@ -194,19 +196,35 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
   stopsStats <- statsStops(trackdf=trackdata,...)
   tempStats <- statsTemp(trackdf=trackdata)
 
-  if (!is.na(trackdata$position_lon.dd[1])){
+  nonNAs <- which(!is.na(trackdata$position_lon.dd) & !is.na(trackdata$position_lat.dd))
+  if (length(nonNAs > 0)) {
+    firstLonLat <- min(nonNAs)
+    lastLonLat <- max(nonNAs)
+  } else {
+    firstLonLat <- NA
+  }
+  if (!is.na(firstLonLat)) {
+    tracktz <- lutz::tz_lookup_coords(trackdata$position_lat.dd[firstLonLat],
+                                      trackdata$position_lon.dd[firstLonLat],
+                                      method=lutzmethod,warn=FALSE)
+  } else {
+    print(paste0("cannot determine timezone without valid lon/lat, using unknown"))
+    tracktz <- "unknown"
+  }
+
+  if (!is.na(firstLonLat)){
     begEndGap <-
-      raster::pointDistance(cbind(trackdata$position_lon.dd[1],
-                                  trackdata$position_lat.dd[1]),
-                            cbind(trackdata$position_lon.dd[nrow(trackdata)],
-                                  trackdata$position_lat.dd[nrow(trackdata)]),
+      raster::pointDistance(cbind(trackdata$position_lon.dd[firstLonLat],
+                                  trackdata$position_lat.dd[firstLonLat]),
+                            cbind(trackdata$position_lon.dd[lastLonLat],
+                                  trackdata$position_lat.dd[lastLonLat]),
                             lonlat=TRUE)
     if (begEndGap>100) {
       cat("  *non-loop - distance between start and end = ",begEndGap,"m \n")
-      cat("   start = ",trackdata$position_lon.dd[1],"  ",
-          trackdata$position_lat.dd[1],"  \n")
-      cat("   stop  = ",trackdata$position_lon.dd[nrow(trackdata)],"  ",
-          trackdata$position_lat.dd[nrow(trackdata)],"\n")
+      cat("   start = ",trackdata$position_lon.dd[firstLonLat],"  ",
+          trackdata$position_lat.dd[firstLonLat],"  \n")
+      cat("   stop  = ",trackdata$position_lon.dd[lastLonLat],"  ",
+          trackdata$position_lat.dd[lastLonLat],"\n")
       rideLoop <- FALSE
     } else {
       rideLoop <- TRUE
@@ -222,10 +240,11 @@ read_ride <- function(ridefile,tz="America/Los_Angeles",
            + 0.25*(round((60*lubridate::minute(format(time.turned.on,tz=tz))+
                              lubridate::second(format(time.turned.on,tz=tz)))/
                            (60*15))))
-   track.cleaned <-
+  track.cleaned <-
     tibble::data_frame(date = rideDate,
                        start.time = startTime,
                        start.hour = startHour,
+                       tracktz =tracktz,
                        nwaypoints = nrow(trackdata),
                        numsegs = max(trackdata$segment),
                        pct.trkpts.hr = sum(!is.na(trackdata$heart_rate.bpm))/
