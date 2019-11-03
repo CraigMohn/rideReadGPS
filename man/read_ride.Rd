@@ -4,14 +4,14 @@
 \alias{read_ride}
 \title{read and clean a gps data file}
 \usage{
-read_ride(ridefile, tz = "America/Los_Angeles", stopSpeed = 0,
-  fixDistance = FALSE, loud = FALSE, loudSegment = FALSE,
-  usefitdc = FALSE, ...)
+read_ride(ridefile, tz, stopSpeed = 0, fixDistance = FALSE,
+  loud = FALSE, loudSegment = FALSE, usefitdc = FALSE,
+  lutzmethod = "fast", ...)
 }
 \arguments{
 \item{ridefile}{a filenames (.fit or .gpx extension) to process}
 
-\item{tz}{string contaiing timezone for converting from UTC}
+\item{tz}{string containing the timezone for the track data frame}
 
 \item{stopSpeed}{- speed in m/s below which the bike is considered stopped
 for time and cadence calculations}
@@ -24,6 +24,8 @@ segment breaks - this occurs when power is lost or on some device lockups}
 \item{loudSegment}{print information about re/segmenting track data}
 
 \item{usefitdc}{use package fitdc to read fit files instead of fitparse}
+
+\item{lutzmethod}{method to use to locate tomezone, see package lutz}
 
 \item{...}{parameters for \code{\link{processSegments}},
 \code{\link{repairHR}},

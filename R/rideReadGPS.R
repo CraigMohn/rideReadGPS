@@ -12,6 +12,7 @@
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
 #' @importFrom foreach foreach %dopar% %do%
 #' @importFrom parallel detectCores
+#' @importFrom lutz tz_lookup_coords
 #'
 #' @name rideReadGPS
 NULL
