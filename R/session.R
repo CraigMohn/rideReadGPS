@@ -33,6 +33,13 @@ statsSession <- function(session) {
     sessionMaxHr <- NA
     sessionAvgPower <- NA
     sessionMaxPower <- NA
+    sessionPedalSmoothness <- NA
+    sessionLeftPedalSmoothness <- NA
+    sessionRightPedalSmoothness <- NA
+    sessionLeftTorqueEff <- NA
+    sessionRightTorqueEff <- NA
+    sessionTimeStanding <- NA
+    sessionLeftRightBalance <- NA
   } else {
     sessionDistance <- ifelse("total_distance" %in% colnames(session),
                               session$total_distance[1],NA)
@@ -62,6 +69,20 @@ statsSession <- function(session) {
                               session$avg_power[1],NA)
     sessionMaxPower <- ifelse("max_power" %in% colnames(session),
                               session$max_power[1],NA)
+    sessionPedalSmoothness <- ifelse("avg_combined_pedal_smoothness" %in% colnames(session),
+                                     session$avg_combined_pedal_smoothness[1],NA)
+    sessionLeftPedalSmoothness <- ifelse("avg_left_pedal_smoothness" %in% colnames(session),
+                                         session$avg_left_pedal_smoothness[1],NA)
+    sessionRightPedalSmoothness <- ifelse("avg_right_pedal_smoothness" %in% colnames(session),
+                                          session$avg_right_pedal_smoothness[1],NA)
+    sessionLeftTorqueEff <- ifelse("avg_left_torque_effectiveness" %in% colnames(session),
+                                         session$avg_left_torque_effectiveness[1],NA)
+    sessionRightTorqueEff <- ifelse("avg_right_torque_effectiveness" %in% colnames(session),
+                                    session$avg_right_torque_effectiveness[1],NA)
+    sessionTimeStanding <- ifelse("time_standing" %in% colnames(session),
+                                    session$time_standing[1],NA)
+    sessionLeftRightBalance <- ifelse("left_right_balance" %in% colnames(session),
+                                      rightPedalShare(session$left_right_balance[1]),NA)
   }
   return(list(
     sessionDistance = sessionDistance,
@@ -77,7 +98,15 @@ statsSession <- function(session) {
     sessionAvgHr = sessionAvgHr,
     sessionMaxHr = sessionMaxHr,
     sessionAvgPower = sessionAvgPower,
-    sessionMaxPower = sessionMaxPower))
+    sessionMaxPower = sessionMaxPower,
+    sessionPedalSmoothness = sessionPedalSmoothness,
+    sessionLeftPedalSmoothness = sessionLeftPedalSmoothness,
+    sessionRightPedalSmoothness = sessionRightPedalSmoothness,
+    sessionLeftTorqueEff = sessionLeftTorqueEff,
+    sessionRightTorqueEff = sessionRightTorqueEff,
+    sessionTimeStanding = sessionTimeStanding,
+    sessionLeftRightBalance = sessionLeftRightBalance
+    ))
 }
 
 #' clean up sensor dropout data for a track
@@ -220,4 +249,17 @@ repairSensorDropOut <- function(trackdf,
     cat("  ** there are ",sum(powDrop)," records with no power data\n")
 
   return(trackdf)
+}
+rightPedalShare <- function(l_r_b) {
+  if (is.na(l_r_b)) {
+    lps <- NA
+  } else if (l_r_b < 32768) {
+    # pedal is known to be right if 1st bit set ( l_r_b & 8000H )
+    # otherwise not sure which way split goes
+    lps <- NA
+  } else {
+    # ignore first 2 bits ( l_r_b & 3FFF ) and shift 4 decimal places
+    lps <- bitwAnd(as.integer(l_r_b),16383L) / 10000
+  }
+  return(lps)
 }

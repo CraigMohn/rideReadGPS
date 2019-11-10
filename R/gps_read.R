@@ -75,7 +75,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #' @param loud print information about hr/cadence data issues/fixes
 #' @param loudSegment print information about re/segmenting track data
 #' @param usefitdc use package fitdc to read fit files instead of fitparse
-#' @param lutzmethod method to use to locate tomezone, see package lutz
+#' @param lutzmethod method to use to locate timezone, see package lutz
 #' @param ... parameters for \code{\link{processSegments}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
@@ -318,6 +318,13 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                        session.max.hr = sessionStats[["sessionMaxHr"]],
                        session.avg.power = sessionStats[["sessionAvgPower"]],
                        session.max.power = sessionStats[["sessionMaxPower"]],
+                       session.pedal.smoothness = sessionStats[["sessionPedalSmoothness"]],
+                       session.left.pedal.smoothness = sessionStats[["sessionLeftPedalSmoothness"]],
+                       session.right.pedal.smoothness = sessionStats[["sessionRightPedalSmoothness"]],
+                       session.left.torque.eff = sessionStats[["sessionLeftTorqueEff"]],
+                       session.right.torque.eff = sessionStats[["sessionRightTorqueEff"]],
+                       session.time.standing = sessionStats[["sessionTimeStanding"]],
+                       session.left.right.balance = sessionStats[["sessionLeftRightBalance"]],
                        sourcefile = basename(ridefile),
                        processed.time = Sys.time(),
                        startbutton.date=startbuttonDate,
