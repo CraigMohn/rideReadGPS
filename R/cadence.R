@@ -278,7 +278,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
       cadChanged <- TRUE
     }
   }
-  if (!cadChanged) trackdf$cadence.uncorrected <- NULL
+  #if (!cadChanged) trackdf$cadence.uncorrected <- NULL
   return(list(trackdf=trackdf,nCadTooHigh=nCadTooHigh,nCadTooLow=nCadTooLow,
               nCadStoppedPos=nCadStoppedPos,nCadStuck=nCadStuck))
 }

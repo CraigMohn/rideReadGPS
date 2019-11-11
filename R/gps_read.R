@@ -248,10 +248,10 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                        nwaypoints = nrow(trackdata),
                        numsegs = max(trackdata$segment),
                        pct.trkpts.hr = sum(!is.na(trackdata$heart_rate.bpm))/
-                                         nrow(trackdata),
+                                         nrow(trackdata),  # based on corrected HR (too big = NA)
                        nHRTooHigh = repHR[["nHRTooHigh"]],
-                       pct.trkpts.cad = sum(!is.na(trackdata$cadence.rpm))/
-                                          nrow(trackdata),
+                       pct.trkpts.cad = sum(!is.na(trackdata$cadence.uncorrected))/
+                                          nrow(trackdata),  #  cadence issues complicated, use raw
                        nCadTooHigh = repCad[["nCadTooHigh"]],
                        nCadTooLow = repCad[["nCadTooLow"]],
                        nCadStoppedPos = repCad[["nCadStoppedPos"]],
