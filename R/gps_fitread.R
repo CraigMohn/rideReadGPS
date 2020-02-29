@@ -13,11 +13,15 @@ read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
   } else {
     stop("package fitparseR must be installed if not using package fitdc")
   }
+
   records <- dflist[["records"]]
   session <- dflist[["session"]]
   events <- dflist[["events"]]
   records$timestamp.s <- as.POSIXct(records$timestamp.s,tz="UTC",origin='1989-12-31')
   events$timestamp.s <- as.POSIXct(events$timestamp.s,tz="UTC",origin='1989-12-31')
+  records$timestamp <- as.character(records$timestamp.s)
+  events$timestamp <- as.character(events$timestamp.s)
+
 
 
   #  drop records with no distance measure, they are beyond salvage
@@ -50,6 +54,7 @@ read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
   }
   recovery_hr <- events[events$event == "recovery_hr",]
   recovery_hr <- recovery_hr[,c("timestamp.s","data")]
+
 
   #############################################################################
   # clean up events file to handle unusual power-on/off sequences

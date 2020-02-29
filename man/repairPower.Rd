@@ -4,10 +4,12 @@
 \alias{repairPower}
 \title{clean up power data for a track}
 \usage{
-repairPower(trackdf, loud = FALSE, ...)
+repairPower(trackdf, powerNAtoZero = TRUE, loud = FALSE, ...)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}
+
+\item{powerNAtoZero}{set NA to 0 if true}
 
 \item{loud}{display actions taken}
 

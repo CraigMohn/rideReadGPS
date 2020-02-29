@@ -4,8 +4,16 @@
 \alias{pedalTime}
 \title{return pedaling time for a track}
 \usage{
-pedalTime(trackdf, minCadence = 0, cadRequireRolling = TRUE,
-  stopSpeed = 0, cadMinMove = 3, cadStartMaxDelay = 3, include, ...)
+pedalTime(
+  trackdf,
+  minCadence = 0,
+  cadRequireRolling = TRUE,
+  stopSpeed = 0,
+  cadMinMove = 3,
+  cadStartMaxDelay = 3,
+  include,
+  ...
+)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}

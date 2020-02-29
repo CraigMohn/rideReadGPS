@@ -4,11 +4,21 @@
 \alias{excludeCalibrate}
 \title{exclude powerpod calibration sequence}
 \usage{
-excludeCalibrate(deltatime, watts, afterlast = TRUE,
-  powerCalibrateAuto = TRUE, powerCalibrateTime = NA,
-  maxCalDelta = 3, maxCalWatts = 100, maxminCalWatts = 3,
-  minmaxCalWatts = 98, maxCalBurstSecs = 5, minBurstSize = 2000,
-  loud = FALSE, ...)
+excludeCalibrate(
+  deltatime,
+  watts,
+  afterlast = TRUE,
+  powerCalibrateAuto = TRUE,
+  powerCalibrateTime = NA,
+  maxCalDelta = 3,
+  maxCalWatts = 100,
+  maxminCalWatts = 3,
+  minmaxCalWatts = 98,
+  maxCalBurstSecs = 5,
+  minBurstSize = 2000,
+  loud = FALSE,
+  ...
+)
 }
 \arguments{
 \item{deltatime}{timestamp vector}

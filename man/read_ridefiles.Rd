@@ -4,8 +4,7 @@
 \alias{read_ridefiles}
 \title{read multiple gps data files}
 \usage{
-read_ridefiles(ridefilevec, cores = 4, usefitdc = FALSE,
-  loud = FALSE, ...)
+read_ridefiles(ridefilevec, cores = 4, usefitdc = FALSE, loud = FALSE, ...)
 }
 \arguments{
 \item{ridefilevec}{a vector of filenames to process}

@@ -56,6 +56,7 @@ powerAvgs <- function(trackdf,...) {
 #'
 #'
 #' @param trackdf data frame or tibble with gps track data
+#' @param powerNAtoZero set NA to 0 if true
 #' @param loud display actions taken
 #' @param ... parameters for \code{\link{excludeCalibrate}},
 #'    \code{\link{repairHR}},
@@ -72,14 +73,22 @@ powerAvgs <- function(trackdf,...) {
 #'    \code{\link{statsCadence}}
 #'
 #' @export
-repairPower <- function(trackdf,loud=FALSE,...) {
+repairPower <- function(trackdf,powerNAtoZero=TRUE,loud=FALSE,...) {
+
+  trackdf$power.uncorrected <- trackdf$power.watts
 
   powerfixed <- excludeCalibrate(trackdf$deltatime,
                                  trackdf$power.watts,
                                  loud=loud,...)
   if (powerfixed[["calSeqs"]] > 0){
-    trackdf$power.uncorrected <- trackdf$power.watts
     trackdf$power.watts < -powerfixed[["power"]]
+  }
+
+  if (powerNAtoZero) {
+    powerNA <- is.na(trackdf$power.watts)
+    if (sum(powerNA) > 0 & any(!powerNA) & loud )
+      cat("  fixing ",sum(powerNA)," missing power values\n")
+    trackdf$power.watts[is.na(trackdf$power.watts)] <- 0
   }
   return(list(trackdf=trackdf,nCalibrateSequences=powerfixed[["calSeqs"]]))
 }

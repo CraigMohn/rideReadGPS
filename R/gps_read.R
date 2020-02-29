@@ -329,6 +329,7 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                        processed.time = Sys.time(),
                        startbutton.date=startbuttonDate,
                        startbutton.time=startbuttonTime)
-    return(list(summary=track.cleaned,trackpoints=trackdata,session=session))
+
+  return(list(summary=track.cleaned,trackpoints=trackdata,session=session))
 }
 

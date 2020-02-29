@@ -4,10 +4,21 @@
 \alias{repairCadence}
 \title{clean up cadence data for a track}
 \usage{
-repairCadence(trackdf, fixCadence = TRUE, cadMax = 160, cadMin = 0,
-  cadCorrectTooHigh = TRUE, cadStuckMax = 0, cadStuckRep = 4,
-  cadStuckSpdDelta = 0.07, cadCorrectStopped = TRUE,
-  cadCorrectNA = FALSE, cadCorrectWindowSec = 7, loud = FALSE, ...)
+repairCadence(
+  trackdf,
+  fixCadence = TRUE,
+  cadMax = 160,
+  cadMin = 0,
+  cadCorrectTooHigh = "smooth",
+  cadCorrectNA = "zero",
+  cadCorrectWindowSec = 7,
+  cadStuckMax = 0,
+  cadStuckRep = 4,
+  cadStuckSpdDelta = 0.07,
+  cadCorrectStopped = TRUE,
+  loud = FALSE,
+  ...
+)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}
@@ -18,9 +29,15 @@ repairCadence(trackdf, fixCadence = TRUE, cadMax = 160, cadMin = 0,
 
 \item{cadMin}{min nonzero cadence value, smaller values set to 0}
 
-\item{cadCorrectTooHigh}{repair excessive cadence values
+\item{cadCorrectTooHigh}{"smooth" to repair excessive cadence values
 using triangular-kernel-weighted average of the nearest nonmissing values
-in the same segment}
+in the same segment or "cap" to cap them at cadMax}
+
+\item{cadCorrectNA}{"smooth" to repair cadence missing values using
+triangular-kernel-weighted average of the nearest nonmissing values in
+the same segment or "zero" to set them to zero}
+
+\item{cadCorrectWindowSec}{window size for kernel smoothing of cadence}
 
 \item{cadStuckMax}{threshold cadence value for removing repeated low values,
 useful for some sensor/GPS combinations.  0 means no checking for this.}
@@ -34,12 +51,6 @@ useful for some sensor/GPS combinations}
 \item{cadCorrectStopped}{repair cadence by setting cadence to 0 when speed
 is zero.  This is what would be appropriate if magnet parked near sensor
 was generating spurious clicks or if moving pedal while at stoplight}
-
-\item{cadCorrectNA}{repair cadence missing values using
-triangular-kernel-weighted average of the nearest nonmissing values in
-the same segment}
-
-\item{cadCorrectWindowSec}{window size for kernel smoothing of cadence}
 
 \item{loud}{display actions taken}
 

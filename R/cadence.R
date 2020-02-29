@@ -105,9 +105,13 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #' @param fixCadence repair cadence errors
 #' @param cadMax max credible cadence value, larger values are errors
 #' @param cadMin min nonzero cadence value, smaller values set to 0
-#' @param cadCorrectTooHigh repair excessive cadence values
+#' @param cadCorrectTooHigh "smooth" to repair excessive cadence values
 #'    using triangular-kernel-weighted average of the nearest nonmissing values
-#'    in the same segment
+#'    in the same segment or "cap" to cap them at cadMax
+#' @param cadCorrectNA "smooth" to repair cadence missing values using
+#'    triangular-kernel-weighted average of the nearest nonmissing values in
+#'    the same segment or "zero" to set them to zero
+#' @param cadCorrectWindowSec window size for kernel smoothing of cadence
 #' @param cadStuckMax threshold cadence value for removing repeated low values,
 #'    useful for some sensor/GPS combinations.  0 means no checking for this.
 #' @param cadStuckRep minimum length of runs of low cadence values to remove,
@@ -117,10 +121,6 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #' @param cadCorrectStopped repair cadence by setting cadence to 0 when speed
 #'    is zero.  This is what would be appropriate if magnet parked near sensor
 #'    was generating spurious clicks or if moving pedal while at stoplight
-#' @param cadCorrectNA repair cadence missing values using
-#'    triangular-kernel-weighted average of the nearest nonmissing values in
-#'    the same segment
-#' @param cadCorrectWindowSec window size for kernel smoothing of cadence
 #' @param loud display actions taken
 #' @param ... parameters for \code{\link{processSegments}},
 #'    \code{\link{repairHR}},
@@ -138,23 +138,27 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #'
 #' @export
 repairCadence <- function(trackdf,fixCadence=TRUE,
-                          cadMax=160,cadMin=0,cadCorrectTooHigh=TRUE,
+                          cadMax=160,cadMin=0,
+                          cadCorrectTooHigh="smooth",
+                          cadCorrectNA="zero",
+                          cadCorrectWindowSec=7,
                           cadStuckMax=0,cadStuckRep=4,cadStuckSpdDelta=0.07,
-                          cadCorrectStopped=TRUE,cadCorrectNA=FALSE,
-                          cadCorrectWindowSec=7,loud=FALSE,...) {
+                          cadCorrectStopped=TRUE,
+                          loud=FALSE,...) {
   trackdf$cadence.uncorrected <- trackdf$cadence.rpm
   cadChanged <- FALSE
-  ## too large cadence values
+
+  ## too-large cadence values - count and optionally fix by smoothing or capping
   cadTooHigh <- trackdf$cadence.rpm > cadMax
   cadTooHigh[is.na(cadTooHigh)] <- FALSE
   if (sum(cadTooHigh) > 0) {
     if (loud) {
-      if (fixCadence) cat("  fixing")
+      if (fixCadence  & tolower(cadCorrectTooHigh) %in% c("smooth","cap")) cat("  fixing")
       cat("  ",sum(cadTooHigh)," too-large cadence values\n")
       cat("   ",paste(sort(unique(trackdf$cadence.rpm[cadTooHigh])),sep=","),"\n")
     }
     if (fixCadence) {
-      if (cadCorrectTooHigh) {
+      if (tolower(cadCorrectTooHigh) == "smooth") {
         trackdf$cadence.rpm[cadTooHigh] <- NA
         cadenceSmoothed <- smoothDataSegments(yvec=trackdf$cadence.rpm,
                                               xvar=cumsum(trackdf$deltatime),
@@ -163,17 +167,17 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
                                               nneighbors=cadCorrectWindowSec,
                                               kernel="triangular",
                                               replaceNAs=TRUE)
-        trackdf$cadence.rpm[cadTooHigh] <-
-          cadenceSmoothed[cadTooHigh]
-      } else {
+        trackdf$cadence.rpm[cadTooHigh] <- cadenceSmoothed[cadTooHigh]
+        cadChanged <- TRUE
+      } else if (tolower(cadCorrectTooHigh) == "cap") {
         trackdf$cadence.rpm[cadTooHigh] <- NA
+        cadChanged <- TRUE
       }
-      cadChanged <- TRUE
     }
   }
   nCadTooHigh <- sum(cadTooHigh)
 
-  ## too small cadence values
+  ## too small cadence values  - count and optionally fix by setting to zero
   cadTooLow <- trackdf$cadence.rpm > 0 & trackdf$cadence.rpm < cadMin
   cadTooLow[is.na(cadTooLow)] <- FALSE
   if (sum(cadTooLow) > 0) {
@@ -190,7 +194,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
   }
   nCadTooLow <- sum(cadTooLow)
 
-  ######   Cadence stuck on low value
+  ######   Cadence stuck on low value - NAs may mean 0, no effect
   nCadStuck <- 0
   if (cadStuckMax > 0) {
     cadrle <- rle(trackdf$cadence.rpm)
@@ -241,7 +245,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
     }
   }
 
-  ######    cadence > 0 but not moving -
+  ######    cadence > 0 but not moving
   cadzero <-  trackdf$cadence.rpm>0 & !is.na(trackdf$cadence.rpm) &
     trackdf$speed.m.s==0 &
     c(0,trackdf$speed.m.s[-nrow(trackdf)]) == 0
@@ -263,10 +267,11 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
   nCadStoppedPos <- sum(cadzero)
 
   ######   Missing cadence values
-  if (cadCorrectNA & fixCadence) {
-    cadenceNA <- is.na(trackdf$cadence.rpm)
-    if (sum(cadenceNA) > 0) {
-      if (loud) cat("  fixing ",sum(cadenceNA)," missing cadence values")
+  cadenceNA <- is.na(trackdf$cadence.rpm)
+  if (sum(cadenceNA) > 0 & any(!cadenceNA) &
+      fixCadence & tolower(cadCorrectNA) %in% c("smooth","zero") ) {
+    if (loud) cat("  fixing ",sum(cadenceNA)," missing cadence values\n")
+    if (tolower(cadCorrectNA) == "smooth") {
       cadenceSmoothed <- smoothDataSegments(yvec=trackdf$cadence.rpm,
                                             xvar=cumsum(trackdf$deltatime),
                                             segment=trackdf$segment,
@@ -275,6 +280,9 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
                                             kernel="triangular",
                                             replaceNAs=TRUE)
       trackdf$cadence.rpm[cadenceNA] <- cadenceSmoothed[cadenceNA]
+      cadChanged <- TRUE
+    } else if (tolower(cadCorrectNA) == "zero") {
+      trackdf$cadence.rpm[cadenceNA] <- 0
       cadChanged <- TRUE
     }
   }

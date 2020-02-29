@@ -4,9 +4,16 @@
 \alias{repairSensorDropOut}
 \title{clean up sensor dropout data for a track}
 \usage{
-repairSensorDropOut(trackdf, fixAllSensorDrop = TRUE,
-  fixSpeedSensorDrop = TRUE, sensorDropSmooth = TRUE,
-  lookBackward = 3, lookForward = 5, loud = FALSE, ...)
+repairSensorDropOut(
+  trackdf,
+  fixAllSensorDrop = TRUE,
+  fixSpeedSensorDrop = TRUE,
+  sensorDropSmooth = TRUE,
+  lookBackward = 3,
+  lookForward = 5,
+  loud = FALSE,
+  ...
+)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}

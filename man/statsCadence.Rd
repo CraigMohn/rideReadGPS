@@ -4,9 +4,16 @@
 \alias{statsCadence}
 \title{summarize cadence statistics for a track}
 \usage{
-statsCadence(trackdf, sessionpedalstrokes = NA, loud = FALSE,
-  cadTrimBegSecs = 15, cadTrimBegMeters = 10, cadTrimEndSecs = 20,
-  cadTrimEndMeters = 15, ...)
+statsCadence(
+  trackdf,
+  sessionpedalstrokes = NA,
+  loud = FALSE,
+  cadTrimBegSecs = 15,
+  cadTrimBegMeters = 10,
+  cadTrimEndSecs = 20,
+  cadTrimEndMeters = 15,
+  ...
+)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}

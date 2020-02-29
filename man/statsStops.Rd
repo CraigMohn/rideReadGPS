@@ -4,8 +4,7 @@
 \alias{statsStops}
 \title{generate stops statistics for a track}
 \usage{
-statsStops(trackdf, segInitIdleAggSecs = 60, segInitIdleAggMeters = 20,
-  ...)
+statsStops(trackdf, segInitIdleAggSecs = 60, segInitIdleAggMeters = 20, ...)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}
