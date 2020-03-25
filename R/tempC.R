@@ -1,14 +1,17 @@
-#' generate power statistics for a track
+#' generate temperature statistics for a track
 #'
 #' \code{statsTemp}  processes a gps track file to summarize the temperature data
 #'
 #' @param trackdf data frame or tibble with gps track data
 #' @param tempTimeIgnore number of seconds after start to ignore temp data
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
@@ -17,10 +20,13 @@
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{excludeCalibrate}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},

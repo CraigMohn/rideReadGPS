@@ -5,26 +5,32 @@
 #' @param trackdf data frame or tibble with gps track data
 #' @param recovery_hr data frame or tibble with gps recovery hr data
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 statsHeartRate <- function(trackdf,recovery_hr,...) {
@@ -91,18 +97,32 @@ statsHeartRate <- function(trackdf,recovery_hr,...) {
 #' @param HRMax max credible HR value, larger values are errors set to NA
 #' @param loud display actions taken
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return dataframe with HR data repaired
 #'
 #' @seealso \code{\link{read_ride}},
-#'    \code{\link{statsHeartRate}}
+#'    \code{\link{repairSensorDropOut}},
+#'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
+#'    \code{\link{statsGearing}},
+#'    \code{\link{statsGrade}},
+#'    \code{\link{statsSession}},
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 repairHR <- function(trackdf,fixHR=TRUE,

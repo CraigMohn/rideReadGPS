@@ -14,13 +14,17 @@ repairPower(trackdf, powerNAtoZero = TRUE, loud = FALSE, ...)
 \item{loud}{display actions taken}
 
 \item{...}{parameters for \code{\link{excludeCalibrate}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
-\code{\link{statsPower}},
+\code{\link{repairCadence}},
 \code{\link{statsHeartRate}},
+\code{\link{statsCadence}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 dataframe with power data repaired
@@ -31,5 +35,16 @@ dataframe with power data repaired
 }
 \seealso{
 \code{\link{read_ride}},
-   \code{\link{statsCadence}}
+   \code{\link{repairSensorDropOut}},
+   \code{\link{repairHR}},
+   \code{\link{repairCadence}},
+   \code{\link{repairPower}},
+   \code{\link{statsHeartRate}},
+   \code{\link{statsCadence}},
+   \code{\link{statsPower}},
+   \code{\link{statsGearing}},
+   \code{\link{statsGrade}},
+   \code{\link{statsSession}},
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

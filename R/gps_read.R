@@ -78,15 +78,18 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #' @param pythonlibrary specify fitparse or fitdecode to process fit files
 #' @param lutzmethod method to use to locate timezone, see package lutz
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
-#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return a list of three data tibbles:  \eqn{summary} and \eqn{trackpoints}
 #'    and \eqn{session}
@@ -95,8 +98,10 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #'
 #' @seealso \code{\link{read_ridefiles}},
 #'    \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
 #'    \code{\link{statsHeartRate}},

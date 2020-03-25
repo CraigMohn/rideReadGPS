@@ -2,7 +2,7 @@
 % Please edit documentation in R/tempC.R
 \name{statsTemp}
 \alias{statsTemp}
-\title{generate power statistics for a track}
+\title{generate temperature statistics for a track}
 \usage{
 statsTemp(trackdf, tempTimeIgnore = 600, ...)
 }
@@ -12,10 +12,13 @@ statsTemp(trackdf, tempTimeIgnore = 600, ...)
 \item{tempTimeIgnore}{number of seconds after start to ignore temp data}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
 \code{\link{repairCadence}},
-\code{\link{statsCadence}},
+\code{\link{repairPower}},
 \code{\link{statsHeartRate}},
+\code{\link{statsCadence}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
@@ -29,10 +32,13 @@ a list containing summary data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{excludeCalibrate}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
-   \code{\link{statsCadence}},
+   \code{\link{repairPower}},
    \code{\link{statsHeartRate}},
+   \code{\link{statsCadence}},
+   \code{\link{statsPower}},
    \code{\link{statsGearing}},
    \code{\link{statsGrade}},
    \code{\link{statsSession}},

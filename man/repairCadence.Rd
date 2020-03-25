@@ -55,13 +55,17 @@ was generating spurious clicks or if moving pedal while at stoplight}
 \item{loud}{display actions taken}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
-\code{\link{statsPower}},
+\code{\link{repairPower}},
 \code{\link{statsHeartRate}},
+\code{\link{statsCadence}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 dataframe with cadence data repaired
@@ -72,5 +76,15 @@ dataframe with cadence data repaired
 }
 \seealso{
 \code{\link{read_ride}},
-   \code{\link{statsCadence}}
+   \code{\link{repairSensorDropOut}},
+   \code{\link{repairHR}},
+   \code{\link{repairPower}},
+   \code{\link{statsHeartRate}},
+   \code{\link{statsCadence}},
+   \code{\link{statsPower}},
+   \code{\link{statsGearing}},
+   \code{\link{statsGrade}},
+   \code{\link{statsSession}},
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

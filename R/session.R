@@ -7,14 +7,17 @@
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
-#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 statsSession <- function(session) {
@@ -122,13 +125,17 @@ statsSession <- function(session) {
 #' @param lookBackward number of seconds to look before dropout when fixing
 #' @param lookForward number of seconds to look after dropout when fixing
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return dataframe with data repaired
 #'

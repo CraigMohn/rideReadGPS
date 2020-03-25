@@ -48,19 +48,23 @@ excludeCalibrate(
 \item{...}{arguments to other functions}
 }
 \value{
-a vector containing cleeaned power
+a vector containing cleaned power
 }
 \description{
 \code{excludeCalibrate}  processes a gps track file to summarize the power data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{excludeCalibrate}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
-   \code{\link{statsCadence}},
+   \code{\link{repairPower}},
    \code{\link{statsHeartRate}},
+   \code{\link{statsCadence}},
+   \code{\link{statsPower}},
    \code{\link{statsGearing}},
    \code{\link{statsGrade}},
    \code{\link{statsSession}},
-   \code{\link{statsStops}}
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

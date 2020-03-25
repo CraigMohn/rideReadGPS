@@ -17,26 +17,32 @@
 #' @param cadTrimEndMeters number of meters before the end of a
 #'    track segment that are ignored in calculating midsegment avg cadence
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 statsCadence <- function(trackdf,sessionpedalstrokes=NA,
@@ -123,18 +129,32 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #'    was generating spurious clicks or if moving pedal while at stoplight
 #' @param loud display actions taken
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return dataframe with cadence data repaired
 #'
 #' @seealso \code{\link{read_ride}},
-#'    \code{\link{statsCadence}}
+#'    \code{\link{repairSensorDropOut}},
+#'    \code{\link{repairHR}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
+#'    \code{\link{statsGearing}},
+#'    \code{\link{statsGrade}},
+#'    \code{\link{statsSession}},
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 repairCadence <- function(trackdf,fixCadence=TRUE,

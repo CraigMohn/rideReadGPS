@@ -31,13 +31,17 @@ repairSensorDropOut(
 \item{loud}{display actions taken}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairHR}},
 \code{\link{repairCadence}},
-\code{\link{statsPower}},
+\code{\link{repairPower}},
 \code{\link{statsHeartRate}},
+\code{\link{statsCadence}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 dataframe with data repaired

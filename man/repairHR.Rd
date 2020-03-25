@@ -16,13 +16,17 @@ repairHR(trackdf, fixHR = TRUE, HRMax = 220, loud = FALSE, ...)
 \item{loud}{display actions taken}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairCadence}},
-\code{\link{statsPower}},
+\code{\link{repairPower}},
 \code{\link{statsHeartRate}},
+\code{\link{statsCadence}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 dataframe with HR data repaired
@@ -32,5 +36,15 @@ dataframe with HR data repaired
 }
 \seealso{
 \code{\link{read_ride}},
-   \code{\link{statsHeartRate}}
+   \code{\link{repairSensorDropOut}},
+   \code{\link{repairCadence}},
+   \code{\link{repairPower}},
+   \code{\link{statsHeartRate}},
+   \code{\link{statsCadence}},
+   \code{\link{statsPower}},
+   \code{\link{statsGearing}},
+   \code{\link{statsGrade}},
+   \code{\link{statsSession}},
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

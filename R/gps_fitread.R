@@ -300,11 +300,11 @@ read_fitdc <- function(fitfile,requiredVars) {
 read_fitPython <- function(fitfile,pythonlibrary,requiredVars) {
 
   if (pythonlibrary == "fitdecode") {
-    return(fitdecodeR::decode_fit_dfs(fitfile,checkconda=FALSE,
+    return(fitdecodeR::decode_fit_dfs(fitfile,checkconda=TRUE,
                                       appendSessionUnits = FALSE,
                                       requiredVars=requiredVars))
   }  else if (pythonlibrary == "fitparse") {
-    return(fitparseR::get_fit_dfs(fitfile,checkconda=FALSE,
+    return(fitparseR::get_fit_dfs(fitfile,checkconda=TRUE,
                                   requiredVars=requiredVars))
   } else {
     stop("bad argument for pythonlibrary = ",pythonlibrary)

@@ -16,14 +16,18 @@ statsGearing(trackdf, grLow1 = 0.044, grLow2, minGRCadence = 40, ...)
 \item{minGRCadence}{ignore where cadence is below this number}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
 \code{\link{repairCadence}},
+\code{\link{repairPower}},
+\code{\link{statsHeartRate}},
 \code{\link{statsCadence}},
 \code{\link{statsPower}},
-\code{\link{statsHeartRate}},
+\code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 a list containing summary data
@@ -34,12 +38,16 @@ a list containing summary data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{processSegments}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
+   \code{\link{repairPower}},
+   \code{\link{statsHeartRate}},
    \code{\link{statsCadence}},
    \code{\link{statsPower}},
-   \code{\link{statsHeartRate}},
+   \code{\link{statsGearing}},
    \code{\link{statsGrade}},
    \code{\link{statsSession}},
-   \code{\link{statsStops}}
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

@@ -12,14 +12,17 @@ statsHeartRate(trackdf, recovery_hr, ...)
 \item{recovery_hr}{data frame or tibble with gps recovery hr data}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
 \code{\link{repairCadence}},
+\code{\link{repairPower}},
 \code{\link{statsCadence}},
 \code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 a list containing summary data
@@ -29,12 +32,15 @@ a list containing summary data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{processSegments}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
+   \code{\link{repairPower}},
    \code{\link{statsCadence}},
    \code{\link{statsPower}},
    \code{\link{statsGearing}},
    \code{\link{statsGrade}},
    \code{\link{statsSession}},
-   \code{\link{statsStops}}
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

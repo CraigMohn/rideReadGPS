@@ -5,26 +5,32 @@
 #' @param trackdf data frame or tibble with gps track data
 #'   powerCalibrateTime <= 0
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{excludeCalibrate}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 statsPower <- function(trackdf,...) {
@@ -59,18 +65,33 @@ powerAvgs <- function(trackdf,...) {
 #' @param powerNAtoZero set NA to 0 if true
 #' @param loud display actions taken
 #' @param ... parameters for \code{\link{excludeCalibrate}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
-#'    \code{\link{statsPower}},
+#'    \code{\link{repairCadence}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return dataframe with power data repaired
 #'
 #' @seealso \code{\link{read_ride}},
-#'    \code{\link{statsCadence}}
+#'    \code{\link{repairSensorDropOut}},
+#'    \code{\link{repairHR}},
+#'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
+#'    \code{\link{statsGearing}},
+#'    \code{\link{statsGrade}},
+#'    \code{\link{statsSession}},
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 repairPower <- function(trackdf,powerNAtoZero=TRUE,loud=FALSE,...) {
@@ -110,17 +131,21 @@ repairPower <- function(trackdf,powerNAtoZero=TRUE,loud=FALSE,...) {
 #' @param loud print information about corrections
 #' @param ... arguments to other functions
 #'
-#' @return a vector containing cleeaned power
+#' @return a vector containing cleaned power
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{excludeCalibrate}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
-#'    \code{\link{statsCadence}},
+#'    \code{\link{repairPower}},
 #'    \code{\link{statsHeartRate}},
+#'    \code{\link{statsCadence}},
+#'    \code{\link{statsPower}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsGrade}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 excludeCalibrate <- function(deltatime,watts,afterlast=TRUE,

@@ -13,26 +13,32 @@
 #'    this,the distance will not be counted aas ascending or descending and the
 #'    grade will not be calculated
 #' @param ... parameters for \code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
-#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @return a list containing summary data
 #'
 #' @seealso \code{\link{read_ride}},\code{\link{processSegments}},
+#'    \code{\link{repairSensorDropOut}},
 #'    \code{\link{repairHR}},
 #'    \code{\link{repairCadence}},
+#'    \code{\link{repairPower}},
+#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsCadence}},
 #'    \code{\link{statsPower}},
-#'    \code{\link{statsHeartRate}},
 #'    \code{\link{statsGearing}},
 #'    \code{\link{statsSession}},
-#'    \code{\link{statsStops}}
+#'    \code{\link{statsStops}},
+#'    \code{\link{statsTemp}}
 #'
 #' @export
 statsGrade <- function(trackdf,

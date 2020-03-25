@@ -36,14 +36,17 @@ track segment that are ignored in calculating midsegment avg cadence}
 track segment that are ignored in calculating midsegment avg cadence}
 
 \item{...}{parameters for \code{\link{processSegments}},
+\code{\link{repairSensorDropOut}},
 \code{\link{repairHR}},
 \code{\link{repairCadence}},
-\code{\link{statsPower}},
+\code{\link{repairPower}},
 \code{\link{statsHeartRate}},
+\code{\link{statsPower}},
 \code{\link{statsGearing}},
 \code{\link{statsGrade}},
 \code{\link{statsSession}},
-\code{\link{statsStops}}}
+\code{\link{statsStops}},
+\code{\link{statsTemp}}}
 }
 \value{
 a list containing summary data
@@ -54,12 +57,15 @@ a list containing summary data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{processSegments}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
-   \code{\link{statsPower}},
+   \code{\link{repairPower}},
    \code{\link{statsHeartRate}},
+   \code{\link{statsPower}},
    \code{\link{statsGearing}},
    \code{\link{statsGrade}},
    \code{\link{statsSession}},
-   \code{\link{statsStops}}
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }

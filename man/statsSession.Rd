@@ -17,12 +17,15 @@ a list containing summary data
 }
 \seealso{
 \code{\link{read_ride}},\code{\link{processSegments}},
+   \code{\link{repairSensorDropOut}},
    \code{\link{repairHR}},
    \code{\link{repairCadence}},
+   \code{\link{repairPower}},
+   \code{\link{statsHeartRate}},
    \code{\link{statsCadence}},
    \code{\link{statsPower}},
-   \code{\link{statsHeartRate}},
    \code{\link{statsGearing}},
    \code{\link{statsGrade}},
-   \code{\link{statsStops}}
+   \code{\link{statsStops}},
+   \code{\link{statsTemp}}
 }
