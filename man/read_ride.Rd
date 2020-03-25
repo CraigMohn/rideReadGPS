@@ -12,6 +12,7 @@ read_ride(
   loud = FALSE,
   loudSegment = FALSE,
   usefitdc = FALSE,
+  pythonlibrary = "fitdecode",
   lutzmethod = "fast",
   ...
 )
@@ -31,7 +32,9 @@ segment breaks - this occurs when power is lost or on some device lockups}
 
 \item{loudSegment}{print information about re/segmenting track data}
 
-\item{usefitdc}{use package fitdc to read fit files instead of fitparse}
+\item{usefitdc}{use package fitdc to read fit files instead of python libraries}
+
+\item{pythonlibrary}{specify fitparse or fitdecode to process fit files}
 
 \item{lutzmethod}{method to use to locate timezone, see package lutz}
 

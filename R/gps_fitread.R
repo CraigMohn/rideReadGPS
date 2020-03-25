@@ -1,4 +1,4 @@
-read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
+read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
 
   requiredVars <- c("altitude.m", "distance.m", "heart_rate.bpm", "speed.m.s",
                     "timestamp.s", "cadence.rpm", "power.watts")
@@ -9,7 +9,8 @@ read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
       stop("package fitdc muat be installed if usefitdc=TRUE")
     }
   } else if (requireNamespace("fitparseR",quietly=TRUE)) {
-    dflist <- read_fitPython(fitfile, requiredVars=requiredVars)
+    dflist <- read_fitPython(fitfile, pythonlibrary=pythonlibrary,
+                             requiredVars=requiredVars)
   } else {
     stop("package fitparseR must be installed if not using package fitdc")
   }
@@ -17,6 +18,7 @@ read_fittrack <- function(fitfile,usefitdc,createSegs=FALSE) {
   records <- dflist[["records"]]
   session <- dflist[["session"]]
   events <- dflist[["events"]]
+
   records$timestamp.s <- as.POSIXct(records$timestamp.s,tz="UTC",origin='1989-12-31')
   events$timestamp.s <- as.POSIXct(events$timestamp.s,tz="UTC",origin='1989-12-31')
   records$timestamp <- as.character(records$timestamp.s)
@@ -295,11 +297,18 @@ read_fitdc <- function(fitfile,requiredVars) {
   return(list(session=session,records=records,events=events))
 
 }
-read_fitPython <- function(fitfile,requiredVars) {
+read_fitPython <- function(fitfile,pythonlibrary,requiredVars) {
 
-  return(fitparseR::get_fit_dfs(fitfile,checkconda=FALSE,
-                                requiredVars=requiredVars))
-
+  if (pythonlibrary == "fitdecode") {
+    return(fitdecodeR::decode_fit_dfs(fitfile,checkconda=FALSE,
+                                      appendSessionUnits = FALSE,
+                                      requiredVars=requiredVars))
+  }  else if (pythonlibrary == "fitparse") {
+    return(fitparseR::get_fit_dfs(fitfile,checkconda=FALSE,
+                                  requiredVars=requiredVars))
+  } else {
+    stop("bad argument for pythonlibrary = ",pythonlibrary)
+  }
 }
 addVars <- function(df,varvec)  {
   if (length(varvec) > 0)

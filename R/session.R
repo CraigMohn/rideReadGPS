@@ -232,7 +232,7 @@ repairSensorDropOut <- function(trackdf,
   }
   if (sum(spdDrop) > 0) {
     if (loud) {
-      cat("  ** there are ",sum(allDrop)," records with no speed data\n")
+      cat("  ** there are ",sum(spdDrop)," records with no speed data\n")
       cat("  ",paste(sort(unique(trackdf$timestamp.s[spdDrop])),sep=","),"\n")
     }
     if (fixSpeedSensorDrop) {

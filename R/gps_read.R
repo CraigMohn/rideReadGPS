@@ -74,7 +74,8 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #'    for time and cadence calculations
 #' @param loud print information about hr/cadence data issues/fixes
 #' @param loudSegment print information about re/segmenting track data
-#' @param usefitdc use package fitdc to read fit files instead of fitparse
+#' @param usefitdc use package fitdc to read fit files instead of python libraries
+#' @param pythonlibrary specify fitparse or fitdecode to process fit files
 #' @param lutzmethod method to use to locate timezone, see package lutz
 #' @param ... parameters for \code{\link{processSegments}},
 #'    \code{\link{repairHR}},
@@ -108,14 +109,16 @@ read_ridefiles <- function(ridefilevec,cores=4,
 read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                       stopSpeed=0.0,
                       fixDistance=FALSE,loud=FALSE,loudSegment=FALSE,
-                      usefitdc=FALSE,lutzmethod="fast",...)  {
+                      usefitdc=FALSE,pythonlibrary="fitdecode",
+                      lutzmethod="fast",...)  {
 
   cat("\nreading: ",ridefile,"\n")
   if (missing(tz)) {
     tz <- Sys.timezone()
   }
   if (substr(ridefile,nchar(ridefile)-3,nchar(ridefile))==".fit") {
-    temp <- read_fittrack(ridefile,usefitdc=usefitdc)
+    temp <- read_fittrack(ridefile,usefitdc=usefitdc,
+                          pythonlibrary=pythonlibrary)
     time.fn.string <- basename(ridefile)
     fit.fn.time.parse <- getOption("bCadHr.fit.fn.time.parse")
     fit.fn.lead <- getOption("bCadHr.fit.fn.lead")
