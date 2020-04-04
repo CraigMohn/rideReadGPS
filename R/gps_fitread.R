@@ -192,7 +192,8 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
     records$position_lon.dd <- NA
   }
 
-  records <- records[,!(names(records) %in% c("position_lat.semicircles","position_long.semicircles"))]
+  records <- records[,!(names(records) %in%
+                          c("position_lat.semicircles","position_long.semicircles"))]
   if (nrow(recovery_hr)>0) {
     recovery_hr$heart_rate.at.stop <- records$heart_rate.bpm[nrow(records)]
     names(recovery_hr) <- gsub("data","heart_rate.postride",names(recovery_hr))
@@ -205,7 +206,7 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
 }
 merge_lists <- function(ls_part, ls_full) {
   extra <- setdiff(names(ls_full), names(ls_part))
-  as_data_frame(append(ls_part, ls_full[extra])[names(ls_full)])  # order as well
+  tibble::as_tibble(append(ls_part, ls_full[extra])[names(ls_full)])  # order as well
 }
 format_record <- function(record) {
   out <- record$fields

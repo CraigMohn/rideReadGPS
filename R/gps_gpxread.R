@@ -57,10 +57,10 @@ read_gpxtrack <- function(gpxfile)  {
   timestamp.s <- gsub(".000Z","Z",timestamp.s)
   timestamp.s <- as.POSIXct(strptime(timestamp.s,"%FT%TZ",tz="UTC"))
     #arrange by timestamp
-    track <- data_frame(segment,timestamp.s,
-                        position_lat.dd,position_lon.dd,altitude.m,
-                        cadence.rpm,heart_rate.bpm,distance.m,speed.m.s,
-                        power.watts,temperature.C)
+    track <- tibble::tibble(segment,timestamp.s,
+                            position_lat.dd,position_lon.dd,altitude.m,
+                            cadence.rpm,heart_rate.bpm,distance.m,speed.m.s,
+                            power.watts,temperature.C)
     return(list(track=track,recovery_hr=NULL,session=NULL))
 }
 

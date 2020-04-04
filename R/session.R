@@ -152,7 +152,7 @@ repairSensorDropOut <- function(trackdf,
 
   flagdrop <- function(varname) {
     if (varname %in% names(trackdf)) {
-      return(is.na(trackdf[,varname]))
+      return(is.na(deframe(trackdf[,varname])))
     } else {
       return(TRUE)
     }
@@ -187,22 +187,22 @@ repairSensorDropOut <- function(trackdf,
     begrow <- which.max(trackdf$timestamp.s >= begtime)
     endrow <- length(allDrop) + 1 - which.max(rev(trackdf$timestamp.s <= endtime))
     if (NAOK) {
-      ytemp <- trackdf[begdrow:enddrow,varname]
+      ytemp <- deframe(trackdf[begdrow:enddrow,varname])
       if (!zeroOK) ytemp[ytemp==0] <- NA
       if (sum(!is.na(trackdf[begdrow:enddrow,varname])) >= 2) {
-        yreplace <- approx(x=trackdf[begdrow:enddrow,"timestamp.s"],
+        yreplace <- approx(x=deframe(trackdf[begdrow:enddrow,"timestamp.s"]),
                            y=ytemp,
-                           xout=trackdf[begdrow:enddrow,"timestamp.s"],
+                           xout=deframe(trackdf[begdrow:enddrow,"timestamp.s"]),
                            method="linear")[[2]]
         trackdf[begdrow:enddrow,varname] <- yreplace
       }
     } else {
-      ytemp <- trackdf[begrow:endrow,varname]
+      ytemp <- deframe(trackdf[begrow:endrow,varname])
       if (!zeroOK) ytemp[ytemp==0] <- NA
       if (sum(!is.na(ytemp)) >= 2) {
-        yreplace <- approx(x=trackdf[begrow:endrow,"timestamp.s"],
+        yreplace <- approx(x=deframe(trackdf[begrow:endrow,"timestamp.s"]),
                            y=ytemp,
-                           xout=trackdf[begrow:endrow,"timestamp.s"],
+                           xout=deframe(trackdf[begrow:endrow,"timestamp.s"]),
                            method="linear")[[2]]
         trackdf[begrow:endrow,varname] <- yreplace
       }
@@ -216,6 +216,7 @@ repairSensorDropOut <- function(trackdf,
   powDrop <- flagdrop("power.watts" )
 
   allDrop <- spdDrop & cadDrop & hrDrop & powDrop
+
   if (sum(allDrop) > 0) {
     if (loud) {
       cat("   there are ",sum(allDrop)," records with no external sensor data\n")

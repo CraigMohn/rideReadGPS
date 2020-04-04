@@ -51,7 +51,7 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
                          cadTrimEndSecs=20,cadTrimEndMeters=15,...) {
 
   pedaling <- !is.na(trackdf$cadence.rpm) & trackdf$cadence.rpm > 0
-  segtimes <- tibble::data_frame(timestamp=cumsum(trackdf$deltatime),
+  segtimes <- tibble::tibble(timestamp=cumsum(trackdf$deltatime),
                                  distance.m=trackdf$distance.m,
                                  segment=trackdf$segment)    %>%
     dplyr::group_by(segment) %>%

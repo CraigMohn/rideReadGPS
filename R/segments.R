@@ -119,7 +119,6 @@ processSegments <- function(trackdf,
                             segSplitTimeStop=3,
                             segMinObs=4,segMinMeters=20,segMinSecs=20,
                             ignoreSegInfo=FALSE,loud=FALSE,...) {
-
   #  demand some small amount of consistency
   segSplitTimeStop <- max(segSplitTimeStop,segBreakTimeMin)
 
@@ -210,13 +209,15 @@ processSegments <- function(trackdf,
                       lag_one(segdf$timestamp.s),units="secs")[-1]
   segdf <- segdf[-nrow(segdf),]
   segdf$segmeters <- segmeters
-  segdf$segsecs <- segsecs
+  segdf$segsecs <- as.numeric(segsecs)
 
   tempdf <- tempdf %>%
     dplyr::group_by(segment) %>%
     dplyr::mutate(nobsinseg=n()) %>%
-    dplyr::left_join(segdf,by="timestamp.s")
-  tempdf[!newseg,c("segmeters","segsecs")] <- 0
+    dplyr::select(c("timestamp.s","nobsinseg","segment")) %>%
+    dplyr::left_join(segdf,by=c("timestamp.s","segment"))
+  tempdf[!newseg,"segmeters"] <- 0
+  tempdf[!newseg,"segsecs"] <- 0
   needjoin <- (tempdf$nobsinseg < segMinObs) & newseg
   needjoin[1] <- FALSE
   if (sum(needjoin) > 0) {
