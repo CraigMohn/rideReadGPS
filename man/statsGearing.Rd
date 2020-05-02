@@ -4,7 +4,7 @@
 \alias{statsGearing}
 \title{generate gear ratio statistics for a track}
 \usage{
-statsGearing(trackdf, grLow1 = 0.044, grLow2, minGRCadence = 40, ...)
+statsGearing(trackdf, grLow1 = 0.044, grLow2, minGRCadence = 30, ...)
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}

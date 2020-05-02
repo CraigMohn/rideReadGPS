@@ -24,7 +24,8 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
   records$timestamp <- as.character(records$timestamp.s)
   events$timestamp <- as.character(events$timestamp.s)
 
-
+#records <<- records
+#session <<- session
 
   #  drop records with no distance measure, they are beyond salvage
   records <- records[!is.na(records$distance.m),]
@@ -218,6 +219,13 @@ format_record <- function(record) {
   if (!"heart_rate"%in%names(out)) {
     if (length(which(units=="bpm"))>0) units <- units[-which(units=="bpm")]
   }
+  if (length(out) < length(units)) {
+    units <- units[1:length(out)]
+  } else if (length(out) > length(units)) {
+    print(out)
+    print(units)
+    stop("bad record names/units")
+  }
   names(out) <- paste(names(out), units, sep = ".")
   out
 }
@@ -289,7 +297,7 @@ read_fitdc <- function(fitfile,requiredVars) {
   session <- Filter(is_session, data_mesgs)
   session <- lapply(session, format_session)
   if (length(session)==1) {
-    session <- as_data_frame(session[[1]])
+    session <- as_tibble(session[[1]])
   } else {
     print(paste0("file has ",length(session)," session records, returning NULL for session variables"))
     session <- NULL

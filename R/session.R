@@ -261,7 +261,7 @@ repairSensorDropOut <- function(trackdf,
 rightPedalShare <- function(l_r_b) {
   if (is.na(l_r_b)) {
     rps <- NA
-  } else if (l_r_b >= 32768) {
+  } else if (l_r_b >= 256) {
     # pedal is known to be right if 1st bit set ( l_r_b & 8000H )
     # ignore top 2 bits ( l_r_b & 3FFF ) and shift 4 decimal places
     rps <- bitwAnd(as.integer(l_r_b),16383L) / 10000

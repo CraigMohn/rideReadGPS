@@ -40,7 +40,7 @@
 #' @export
 statsGearing <- function(trackdf,
                          grLow1=0.044,grLow2,
-                         minGRCadence=40,...) {
+                         minGRCadence=30,...) {
   ## ratio of speed to cadence
   pctLowGear1 <- NA
   pctLowGear2 <- NA

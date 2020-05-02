@@ -67,9 +67,9 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
     segtimes$distance.m <= segtimes$segenddist-cadTrimBegMeters
 
   cadenceNumerator <- sum(trackdf$deltatimestart[pedaling]*
-                            trackdf$cadence.rpm[pedaling])
+                          trackdf$cadence.rpm[pedaling])
   cadenceNumeratorInner <- sum(trackdf$deltatimestart[pedaling&innersegment]*
-                                 trackdf$cadence.rpm[pedaling&innersegment])
+                               trackdf$cadence.rpm[pedaling&innersegment])
 
   avgcadenceNoZerosSum <- cadenceNumerator / pedalTime(trackdf,...)
   avgcadenceWithZerosSum <- cadenceNumerator / rollingTime(trackdf,...)
@@ -97,7 +97,8 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
               avgcadenceNoZerosSession=avgcadenceNoZerosSession,
               avgcadenceWithZerosSession=avgcadenceWithZerosSession,
               avgcadenceMidsegment=avgcadenceMidsegment,
-              summedPedalStrokes=cadenceNumerator/60))
+              summedPedalStrokes=cadenceNumerator/60,
+              sessionPedalStrokes=sessionpedalstrokes))
 }
 
 
@@ -190,7 +191,7 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
         trackdf$cadence.rpm[cadTooHigh] <- cadenceSmoothed[cadTooHigh]
         cadChanged <- TRUE
       } else if (tolower(cadCorrectTooHigh) == "cap") {
-        trackdf$cadence.rpm[cadTooHigh] <- NA
+        trackdf$cadence.rpm[cadTooHigh] <- cadMax
         cadChanged <- TRUE
       }
     }
