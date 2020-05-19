@@ -365,12 +365,14 @@ fixSensorMissing <- function(sensorvec,spd,elev,
                              initialNAs,midNAs,finalNAs,
                              varstr="",loud)  {
 
+  nchanged <- 0
   sensorNAs <- is.na(sensorvec)
+  if (sum(!sensorNAs) == 0)
+    return(list(sensorvec=sensorvec,nchanged=0))
+
   firstNonNA <- which(!sensorNAs)[1]
   lastNonNA <- which(!sensorNAs)[length(which(!sensorNAs))]
   midNonNAs <- sum(is.na(sensorvec[firstNonNA:lastNonNA]))
-
-  nchanged <- 0
   if (firstNonNA > 1) {
     sensorvec[1:(firstNonNA-1)] <-
       NApatch(sensorvec[1:(firstNonNA-1)],spd[1:(firstNonNA-1)],
