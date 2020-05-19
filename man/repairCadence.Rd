@@ -6,6 +6,9 @@
 \usage{
 repairCadence(
   trackdf,
+  cadNAtoZeroInit = "stopped",
+  cadNAtoZeroMid = 3,
+  cadNAtoZeroFinal = "downhill",
   fixCadence = TRUE,
   cadMax = 160,
   cadMin = 0,
@@ -22,6 +25,15 @@ repairCadence(
 }
 \arguments{
 \item{trackdf}{data frame or tibble with gps track data}
+
+\item{cadNAtoZeroInit}{either "all", "stopped","downhill" or "none" to
+specify when to replace inital missing cadence values with zero}
+
+\item{cadNAtoZeroMid}{an integer, set midride missing cadence values to zero
+if preceded by this many zeros}
+
+\item{cadNAtoZeroFinal}{either "all", "stopped","downhill" or "none" to
+specify when to replace final missing cadence values with zero}
 
 \item{fixCadence}{repair cadence errors}
 

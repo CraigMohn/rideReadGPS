@@ -26,6 +26,6 @@ tedious <- utils::globalVariables(c("start.hour","start.time",
                                     "yend","group","timeBeg","timeEnd","pauseSize",
                                     "timelaststop","segbegtime","segendtime",
                                     "movingrun","maxdist","startofstop","sosNA",
-                                    "joinseg","subsegment"))
+                                    "joinseg","subsegment","grp","cadence.rpm"))
 
 

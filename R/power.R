@@ -108,7 +108,7 @@ repairPower <- function(trackdf,powerNAtoZero=TRUE,loud=FALSE,...) {
   if (powerNAtoZero) {
     powerNA <- is.na(trackdf$power.watts)
     if (sum(powerNA) > 0 & any(!powerNA) & loud )
-      cat("  fixing ",sum(powerNA)," missing power values\n")
+      cat("zeroing ",sum(powerNA)," missing power values\n")
     trackdf$power.watts[is.na(trackdf$power.watts)] <- 0
   }
   return(list(trackdf=trackdf,nCalibrateSequences=powerfixed[["calSeqs"]]))

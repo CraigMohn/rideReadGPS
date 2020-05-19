@@ -109,6 +109,12 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #'
 #'
 #' @param trackdf data frame or tibble with gps track data
+#' @param cadNAtoZeroInit either "all", "stopped","downhill" or "none" to
+#'   specify when to replace inital missing cadence values with zero
+#' @param cadNAtoZeroMid an integer, set midride missing cadence values to zero
+#'   if preceded by this many zeros
+#' @param cadNAtoZeroFinal either "all", "stopped","downhill" or "none" to
+#'   specify when to replace final missing cadence values with zero
 #' @param fixCadence repair cadence errors
 #' @param cadMax max credible cadence value, larger values are errors
 #' @param cadMin min nonzero cadence value, smaller values set to 0
@@ -158,7 +164,11 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
 #'    \code{\link{statsTemp}}
 #'
 #' @export
-repairCadence <- function(trackdf,fixCadence=TRUE,
+repairCadence <- function(trackdf,
+                          cadNAtoZeroInit="stopped",
+                          cadNAtoZeroMid=3,
+                          cadNAtoZeroFinal="downhill",
+                          fixCadence=TRUE,
                           cadMax=160,cadMin=0,
                           cadCorrectTooHigh="smooth",
                           cadCorrectNA="zero",
@@ -169,13 +179,29 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
   trackdf$cadence.uncorrected <- trackdf$cadence.rpm
   cadChanged <- FALSE
 
+  ##  correct missing values which are zeros
+  cadtemp <- fixSensorMissing(trackdf$cadence.rpm,
+                              trackdf$speed.m.s,
+                              trackdf$altitude.m,
+                              initialNAs=cadNAtoZeroInit,
+                              midNAs=cadNAtoZeroMid,
+                              finalNAs=cadNAtoZeroFinal,
+                              varstr="cadence",
+                              loud=loud)
+  nCadMissingtoZero <- cadtemp[["nchanged"]]
+  if (cadtemp[["nchanged"]]>0) {
+    cadChanged <- TRUE
+    trackdf$cadence.rpm <- cadtemp[["sensorvec"]]
+  }
+
   ## too-large cadence values - count and optionally fix by smoothing or capping
   cadTooHigh <- trackdf$cadence.rpm > cadMax
   cadTooHigh[is.na(cadTooHigh)] <- FALSE
   if (sum(cadTooHigh) > 0) {
     if (loud) {
-      if (fixCadence  & tolower(cadCorrectTooHigh) %in% c("smooth","cap")) cat("  fixing")
-      cat("  ",sum(cadTooHigh)," too-large cadence values\n")
+      if (fixCadence  & tolower(cadCorrectTooHigh) %in% c("smooth","cap"))
+        cat("fixing (using ",cadCorrectTooHigh,") ",sep="")
+      cat(sum(cadTooHigh)," too-large cadence values\n",sep="")
       cat("   ",paste(sort(unique(trackdf$cadence.rpm[cadTooHigh])),sep=","),"\n")
     }
     if (fixCadence) {
@@ -203,8 +229,8 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
   cadTooLow[is.na(cadTooLow)] <- FALSE
   if (sum(cadTooLow) > 0) {
     if (loud) {
-      if (fixCadence) cat("  fixing")
-      cat("  ",sum(cadTooLow)," too-small cadence values\n")
+      if (fixCadence) cat("  fixing (set=0 ")
+      cat(sum(cadTooLow)," too-small cadence values\n",sep="")
       cat("   ",paste(sort(unique(trackdf$cadence.rpm[cadTooLow])),
                        sep=","),"\n")
     }
@@ -251,11 +277,17 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
       zapcadence <- speedfact > cadStuckSpdDelta
       if (max(zapcadence) > 0) {
         if (loud) {
-          if (fixCadence) cat("  zeroing")
-          cat("  ",sum(zapcadence)," apparently stuck cadence values \n")
+          if (fixCadence) cat("zeroing ")
+          cat(sum(zapcadence)," apparently stuck cadence values \n",sep="")
           temp <- trackdf[zapcadence,c("timestamp.s","speed.m.s","cadence.rpm",
                                        "distance.m")]
-          print(temp,n=70,na.print="NA")
+          temp$newgroup <- (temp$timestamp.s - dplyr::lag(temp$timestamp.s,1) > 3) |
+                           (temp$cadence.rpm != dplyr::lag(temp$cadence.rpm))
+          temp$newgroup[1] <- TRUE
+          temp$grp <- cumsum(temp$newgroup)
+          temp <- temp %>% dplyr::group_by(grp) %>%
+                  dplyr::summarize(begtime=min(timestamp.s),n=n(),cad=mean(cadence.rpm))
+          print(temp,n=30,na.print="NA")
         }
         if (fixCadence) {
           trackdf$cadence.rpm[zapcadence] <- 0
@@ -272,12 +304,18 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
     c(0,trackdf$speed.m.s[-nrow(trackdf)]) == 0
   if (sum(cadzero)>0) {
     if (loud) {
-      if (cadCorrectStopped & fixCadence) cat("  zeroing")
-      cat("  ",sum(cadzero)," positive cadence values while speed is 0\n")
+      if (cadCorrectStopped & fixCadence) cat("zeroing ",sep="")
+      cat(sum(cadzero)," positive cadence values while speed is 0\n")
       if (sum(cadzero)>0) {
         temp <- trackdf[cadzero,c("timestamp.s","speed.m.s","cadence.rpm",
                                   "distance.m")]
-        print(temp,n=70,na.print="NA")
+        temp$newgroup <- (temp$timestamp.s - dplyr::lag(temp$timestamp.s,1) > 3) |
+          (temp$cadence.rpm != dplyr::lag(temp$cadence.rpm))
+        temp$newgroup[1] <- TRUE
+        temp$grp <- cumsum(temp$newgroup)
+        temp <- temp %>% dplyr::group_by(grp) %>%
+          dplyr::summarize(begtime=min(timestamp.s),n=n(),cad=mean(cadence.rpm))
+        print(temp,n=30,na.print="NA")
       }
     }
     if (cadCorrectStopped & fixCadence) {
@@ -291,7 +329,9 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
   cadenceNA <- is.na(trackdf$cadence.rpm)
   if (sum(cadenceNA) > 0 & any(!cadenceNA) &
       fixCadence & tolower(cadCorrectNA) %in% c("smooth","zero") ) {
-    if (loud) cat("  fixing ",sum(cadenceNA)," missing cadence values\n")
+    if (loud)
+      cat("fixing (using ",cadCorrectNA,") ",
+          sum(cadenceNA)," missing cadence values\n",sep="")
     if (tolower(cadCorrectNA) == "smooth") {
       cadenceSmoothed <- smoothDataSegments(yvec=trackdf$cadence.rpm,
                                             xvar=cumsum(trackdf$deltatime),
@@ -308,7 +348,8 @@ repairCadence <- function(trackdf,fixCadence=TRUE,
     }
   }
   #if (!cadChanged) trackdf$cadence.uncorrected <- NULL
-  return(list(trackdf=trackdf,nCadTooHigh=nCadTooHigh,nCadTooLow=nCadTooLow,
+  return(list(trackdf=trackdf,nCadMissingtoZero=nCadMissingtoZero,
+              nCadTooHigh=nCadTooHigh,nCadTooLow=nCadTooLow,
               nCadStoppedPos=nCadStoppedPos,nCadStuck=nCadStuck))
 }
 zerosinrange <- function(vec,begin,end) {
@@ -320,3 +361,94 @@ zerosinrange <- function(vec,begin,end) {
     max(t) == 1
   }
 }
+fixSensorMissing <- function(sensorvec,spd,elev,
+                             initialNAs,midNAs,finalNAs,
+                             varstr="",loud)  {
+
+  sensorNAs <- is.na(sensorvec)
+  firstNonNA <- which(!sensorNAs)[1]
+  lastNonNA <- which(!sensorNAs)[length(which(!sensorNAs))]
+  midNonNAs <- sum(is.na(sensorvec[firstNonNA:lastNonNA]))
+
+  nchanged <- 0
+  if (firstNonNA > 1) {
+    sensorvec[1:(firstNonNA-1)] <-
+      NApatch(sensorvec[1:(firstNonNA-1)],spd[1:(firstNonNA-1)],
+              elev[1:(firstNonNA-1)],how=initialNAs)
+    if (!is.na(sensorvec[1])) {
+      nchanged <- nchanged + firstNonNA -1
+      if (loud) print(paste0(firstNonNA-1,
+                             " initial ",varstr,
+                             " missing values set to zero using rule ",
+                             initialNAs))
+    }
+  }
+  if (midNonNAs > 0 & as.integer(midNAs) > 0) {
+    temp <- rle(is.na(sensorvec[firstNonNA:lastNonNA]))
+    starts <- cumsum(temp[["lengths"]])
+    vstartNAs <- firstNonNA - 1 + starts[temp[["values"]]==TRUE]
+    vlengthNAs <- firstNonNA - 1 + temp[["lengths"]][temp[["values"]]==TRUE]
+    znavec <- is.na(sensorvec)
+    znavec[sensorvec == 0] <- TRUE
+    for (i in 1:as.integer(midNAs)) {
+      znavec <- znavec & c(TRUE,znavec[-length(znavec)])
+    }
+    if (firstNonNA > 1)
+      znavec[1:(firstNonNA-1)] <- FALSE
+    if (lastNonNA < length(sensorvec))
+      znavec[(lastNonNA+1):length(znavec)] <- FALSE
+    sensorvec[znavec & is.na(sensorvec)] <- 0
+    nfixed <- midNonNAs - sum(is.na(sensorvec[firstNonNA:lastNonNA]))
+    if (nfixed > 0) {
+      nchanged <- nchanged + nfixed
+      if (loud) print(paste0(nfixed,
+                             " interior ",varstr,
+                             " missing values set to zero using window ",
+                             midNAs))
+    }
+  }
+  if (lastNonNA < length(sensorvec)) {
+    sensorvec[(lastNonNA+1):length(sensorvec)] <-
+      NApatch(sensorvec[(lastNonNA+1):length(sensorvec)],
+              spd[(lastNonNA+1):length(sensorvec)],
+              elev[(lastNonNA+1):length(sensorvec)],how=finalNAs)
+    if (!is.na(sensorvec[length(sensorvec)])) {
+      nchanged <- nchanged + length(sensorvec)-lastNonNA
+      if (loud) print(paste0(length(sensorvec)-lastNonNA,
+                             " final ",varstr,
+                             " missing values set to zero using rule ",
+                             finalNAs))
+    }
+  }
+  return(list(sensorvec=sensorvec,nchanged=nchanged))
+}
+NApatch <- function(NAvec,svec,evec,how) {
+  if (how == "all") {
+    return(rep(0,length(NAvec)))
+
+  } else if (how == "stopped") {
+    if (max(svec <- 0.05)) {
+      return(rep(0,length(NAvec)))
+    } else {
+      return(NAvec)
+    }
+
+  } else if (how == "downslope") {
+    if (length(NAvec)==1) {
+      downflat <- TRUE
+    } else {
+      downflat <-
+        c(TRUE, (evec[-1] - evec[-length(evec)]) <= 0)
+    }
+    testvec <- downflat | (svec <= 0.05)
+    if (min(testvec) > 0) {
+      return(rep(0,length(NAvec)))
+    } else {
+      return(NAvec)
+    }
+
+  } else {
+    return(NAvec)
+  }
+}
+

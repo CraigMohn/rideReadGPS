@@ -260,6 +260,7 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                    nHRTooHigh = repHR[["nHRTooHigh"]],
                    pct.trkpts.cad = sum(!is.na(trackdata$cadence.uncorrected))/
                                       nrow(trackdata),  #  cadence issues complicated, use raw
+                   nCadMissingtoZero = repCad[["nCadMissingtoZero"]],
                    nCadTooHigh = repCad[["nCadTooHigh"]],
                    nCadTooLow = repCad[["nCadTooLow"]],
                    nCadStoppedPos = repCad[["nCadStoppedPos"]],
