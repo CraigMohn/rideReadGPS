@@ -152,6 +152,13 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
   trackdata <- temp[["track"]]
   recovery_hr <- temp[["recovery_hr"]]
   session <- temp[["session"]]
+  hrv <- temp[["hrv"]]
+  device_info <- temp[["device_info"]]
+device_info <<- device_info
+  if (!is.null(device_info)) {
+    device_info_list <- devices(device_info=device_info,loud=loud)
+  }
+
   attr(trackdata$timestamp.s,"tzone") <- tz
   if (is.na(time.turned.on)){
     #  if filename not successfully turned into a start-button time, use 1st
@@ -338,7 +345,9 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                    processed.time = Sys.time(),
                    startbutton.date=startbuttonDate,
                    startbutton.time=startbuttonTime)
-
+  if (!is.null(device_info)) {
+    track.cleaned <- cbind(track.cleaned,as_tibble(device_info_list))
+  }
   return(list(summary=track.cleaned,trackpoints=trackdata,session=session))
 }
 

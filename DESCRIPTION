@@ -1,15 +1,15 @@
 Package: rideReadGPS
 Type: Package
 Title: Read GPS Track Files (fit or gpx) 
-Version: 0.5.5
-Date: 2020-04-02
+Version: 0.6.0
+Date: 2020-05-20
 Author: Craig Mohn
 Maintainer: Craig Mohn <craig.mohn.projects@gmail.com>
 Depends: R (>= 3.3)
-Imports: magrittr, tibble, dplyr, raster, XML, doParallel,
-    foreach, lubridate, stringr, lutz
+Imports: tibble, dplyr, lubridate, stringr, magrittr, 
+    raster, XML, doParallel, foreach, lutz
 Suggests: fitdc, fitparseR, fitdecodeR
-Remotes: CraigMohn/fitparseR 
+Remotes: CraigMohn/fitparseR, CraigMohn/fitparseR 
 Description: A package for reading cycling .fit and .gpx files into 
     dataframes containing (corrected) trackpoints and summary statistics.
 License: GPL-3

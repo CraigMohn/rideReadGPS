@@ -6,7 +6,7 @@
 #'
 #' @import magrittr tibble dplyr stringr
 #' @import XML
-#' @importFrom stats approx median quantile setNames weighted.mean
+#' @importFrom stats approx median quantile setNames weighted.mean na.omit
 #' @importFrom raster pointDistance
 #' @importFrom lubridate mday month year second minute hour ymd_hms
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
@@ -26,6 +26,10 @@ tedious <- utils::globalVariables(c("start.hour","start.time",
                                     "yend","group","timeBeg","timeEnd","pauseSize",
                                     "timelaststop","segbegtime","segendtime",
                                     "movingrun","maxdist","startofstop","sosNA",
-                                    "joinseg","subsegment","grp","cadence.rpm"))
+                                    "joinseg","subsegment","grp","cadence.rpm",
+                                    "device_index","antplus_device_type",
+                                    "manufacturer","serial_number",
+                                    "hardware_version","software_version",
+                                    "device_type"))
 
 

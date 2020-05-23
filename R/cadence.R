@@ -82,7 +82,8 @@ statsCadence <- function(trackdf,sessionpedalstrokes=NA,
     if (loud) {
       cat("pedalstrokes - session = ",sessionpedalstrokes," , summed = ",
                    cadenceNumerator/60,"   summed exceeds session by  ",
-                   ((cadenceNumerator/(60*sessionpedalstrokes))-1),"\n")
+                   round(((cadenceNumerator/(60*sessionpedalstrokes))-1)*100,2),
+          "percent\n")
     }
     avgcadenceNoZerosSession <- sessionpedalstrokes / (pedalTime(trackdf,...)/60)
     avgcadenceWithZerosSession <- sessionpedalstrokes / (rollingTime(trackdf,...)/60)

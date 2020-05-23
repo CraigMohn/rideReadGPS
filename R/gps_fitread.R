@@ -18,6 +18,16 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
   records <- dflist[["records"]]
   session <- dflist[["session"]]
   events <- dflist[["events"]]
+  if ("device_info" %in% names(dflist)) {
+    device_info <- dflist[["device_info"]]
+  } else {
+    device_info <- NULL
+  }
+  if ("hrv" %in% names(dflist)) {
+    hrv <- dflist[["hrv"]]
+  } else {
+    hrv <- NULL
+  }
 
   records$timestamp.s <- as.POSIXct(records$timestamp.s,tz="UTC",origin='1989-12-31')
   events$timestamp.s <- as.POSIXct(events$timestamp.s,tz="UTC",origin='1989-12-31')
@@ -203,7 +213,8 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
         "   hr after 2 min = ",recovery_hr$heart_rate.postride,
         "   change = ",hrdrop,"\n")
   }
-  return(list(track=records,recovery_hr=recovery_hr,session=session))
+  return(list(track=records,recovery_hr=recovery_hr,session=session,hrv=hrv,
+              device_info=device_info))
 }
 merge_lists <- function(ls_part, ls_full) {
   extra <- setdiff(names(ls_full), names(ls_part))

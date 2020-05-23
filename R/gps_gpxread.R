@@ -61,7 +61,8 @@ read_gpxtrack <- function(gpxfile)  {
                             position_lat.dd,position_lon.dd,altitude.m,
                             cadence.rpm,heart_rate.bpm,distance.m,speed.m.s,
                             power.watts,temperature.C)
-    return(list(track=track,recovery_hr=NULL,session=NULL))
+    return(list(track=track,recovery_hr=NULL,session=NULL,hrv=NULL,
+                device_info=NULL))
 }
 
 readGPXhrcad <- function(gpx.file) {
