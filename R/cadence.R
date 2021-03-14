@@ -288,7 +288,7 @@ repairCadence <- function(trackdf,
           temp$grp <- cumsum(temp$newgroup)
           temp <- temp %>% dplyr::group_by(grp) %>%
                   dplyr::summarize(begtime=min(timestamp.s),n=n(),cad=mean(cadence.rpm))
-          print(temp,n=30,na.print="NA")
+          print(as.data.frame(temp,n=30,na.print="NA"))
         }
         if (fixCadence) {
           trackdf$cadence.rpm[zapcadence] <- 0
@@ -316,7 +316,7 @@ repairCadence <- function(trackdf,
         temp$grp <- cumsum(temp$newgroup)
         temp <- temp %>% dplyr::group_by(grp) %>%
           dplyr::summarize(begtime=min(timestamp.s),n=n(),cad=mean(cadence.rpm))
-        print(temp,n=30,na.print="NA")
+        print(as.data.frame(temp,n=30,na.print="NA"))
       }
     }
     if (cadCorrectStopped & fixCadence) {

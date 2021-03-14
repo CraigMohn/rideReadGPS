@@ -8,7 +8,6 @@
 #' @param ridefilevec a vector of filenames to process
 #' @param cores number of cores (default is #CPUs - 1)
 #' @param loud display summary of re/segmenting actions
-#' @param usefitdc use package fitdc to read fit files instead of fitparse
 #' @param ... parameters passed for track cleaning
 #'
 #' @return a list of two data tibbles:  \eqn{summaries} and \eqn{tracks}
@@ -18,8 +17,7 @@
 #' @seealso \code{\link{read_ride}}
 #'
 #' @export
-read_ridefiles <- function(ridefilevec,cores=4,
-                           usefitdc=FALSE,loud=FALSE,...)  {
+read_ridefiles <- function(ridefilevec,cores=4,loud=FALSE,...)  {
 
   nfiles <- length(ridefilevec)
   if(missing(cores)) cores <- parallel::detectCores()
@@ -30,7 +28,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
                                trackpoints=dplyr::bind_rows(a[["trackpoints"]],b[["trackpoints"]]))
     ridelist <- foreach (x = ridefilevec,.combine=`cfun`,
                         .packages=c("bikeCadHr")) %dopar% {
-      read_ride(x,loud=loud,usefitdc=usefitdc,...)
+      read_ride(x,loud=loud,...)
     }
     doParallel::stopImplicitCluster()
     return(list(summaries=dplyr::arrange(ridelist[["summary"]],date,start.hour),
@@ -39,7 +37,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
     outdf <- NULL
     outtracks <- NULL
     for (x in ridefilevec) {
-      ride <- read_ride(x,loud=loud,usefitdc=usefitdc,...)
+      ride <- read_ride(x,loud=loud,...)
       obsdf <- ride[["summary"]]
       obstrack <- ride[["trackpoints"]]
       if (is.null(outdf)) {
@@ -74,8 +72,8 @@ read_ridefiles <- function(ridefilevec,cores=4,
 #'    for time and cadence calculations
 #' @param loud print information about hr/cadence data issues/fixes
 #' @param loudSegment print information about re/segmenting track data
-#' @param usefitdc use package fitdc to read fit files instead of python libraries
-#' @param pythonlibrary specify fitparse or fitdecode to process fit files
+#' @param readpkg which package reads the fit file -
+#'     valid options are "fitdc","fitdecodeR", or "FITfileR"
 #' @param lutzmethod method to use to locate timezone, see package lutz
 #' @param ... parameters for \code{\link{processSegments}},
 #'    \code{\link{repairSensorDropOut}},
@@ -114,7 +112,7 @@ read_ridefiles <- function(ridefilevec,cores=4,
 read_ride <- function(ridefile,tz, #="America/Los_Angeles",
                       stopSpeed=0.0,
                       fixDistance=FALSE,loud=FALSE,loudSegment=FALSE,
-                      usefitdc=FALSE,pythonlibrary="fitdecode",
+                      readpkg="fitdecodeR",
                       lutzmethod="fast",...)  {
 
   cat("\nreading: ",ridefile,"\n")
@@ -122,8 +120,7 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
     tz <- Sys.timezone()
   }
   if (substr(ridefile,nchar(ridefile)-3,nchar(ridefile))==".fit") {
-    temp <- read_fittrack(ridefile,usefitdc=usefitdc,
-                          pythonlibrary=pythonlibrary)
+    temp <- read_fittrack(ridefile,readpkg=readpkg)
     time.fn.string <- basename(ridefile)
     fit.fn.time.parse <- getOption("bCadHr.fit.fn.time.parse")
     fit.fn.lead <- getOption("bCadHr.fit.fn.lead")
@@ -146,6 +143,7 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
     if (nchar(gpx.fn.trail)>0) time.fn.string <-
       substr(time.fn.string,1,regexpr(gpx.fn.trail,time.fn.string)-1)
     time.turned.on <- strptime(time.fn.string,gpx.fn.time.parse,tz=tz)
+    readpkg <- "gpx-xml"
   } else {
     stop("unknown file extension")
   }
@@ -154,11 +152,9 @@ read_ride <- function(ridefile,tz, #="America/Los_Angeles",
   session <- temp[["session"]]
   hrv <- temp[["hrv"]]
   device_info <- temp[["device_info"]]
-device_info <<- device_info
   if (!is.null(device_info)) {
     device_info_list <- devices(device_info=device_info,loud=loud)
   }
-
   attr(trackdata$timestamp.s,"tzone") <- tz
   if (is.na(time.turned.on)){
     #  if filename not successfully turned into a start-button time, use 1st
@@ -342,11 +338,12 @@ device_info <<- device_info
                    session.time.standing = sessionStats[["sessionTimeStanding"]],
                    session.left.right.balance = sessionStats[["sessionLeftRightBalance"]],
                    sourcefile = basename(ridefile),
+                   readpkg = readpkg,
                    processed.time = Sys.time(),
                    startbutton.date=startbuttonDate,
                    startbutton.time=startbuttonTime)
   if (!is.null(device_info)) {
-    track.cleaned <- cbind(track.cleaned,as_tibble(device_info_list))
+    track.cleaned <- cbind(track.cleaned,as_tibble(device_info_list)[1,])
   }
   return(list(summary=track.cleaned,trackpoints=trackdata,session=session))
 }

@@ -85,9 +85,9 @@ statsSession <- function(session) {
     sessionTimeStanding <- ifelse("time_standing" %in% colnames(session),
                                     session$time_standing[1],NA)
     sessionLeftRightBalance <- ifelse("left_right_balance" %in% colnames(session),
-                                      rightPedalShare(session$left_right_balance[1]),NA)
+                                       session$left_right_balance[1]/100,NA)
   }
-  return(list(
+  return(lapply(list(
     sessionDistance = sessionDistance,
     sessionElapsedTime = sessionElapsedTime,
     sessionTimerTime = sessionTimerTime,
@@ -109,7 +109,8 @@ statsSession <- function(session) {
     sessionRightTorqueEff = sessionRightTorqueEff,
     sessionTimeStanding = sessionTimeStanding,
     sessionLeftRightBalance = sessionLeftRightBalance
-    ))
+    ),as.numeric)
+  )
 }
 
 #' clean up sensor dropout data for a track
@@ -194,7 +195,7 @@ repairSensorDropOut <- function(trackdf,
                            y=ytemp,
                            xout=deframe(trackdf[begdrow:enddrow,"timestamp.s"]),
                            method="linear")[[2]]
-        trackdf[begdrow:enddrow,varname] <- yreplace
+        trackdf[begdrow:enddrow,varname] <- round(yreplace)
       }
     } else {
       ytemp <- deframe(trackdf[begrow:endrow,varname])
@@ -204,7 +205,7 @@ repairSensorDropOut <- function(trackdf,
                            y=ytemp,
                            xout=deframe(trackdf[begrow:endrow,"timestamp.s"]),
                            method="linear")[[2]]
-        trackdf[begrow:endrow,varname] <- yreplace
+        trackdf[begrow:endrow,varname] <- round(yreplace)
       }
     }
     return(trackdf)
@@ -257,20 +258,4 @@ repairSensorDropOut <- function(trackdf,
     cat("  ** there are ",sum(powDrop)," records with no power data\n")
 
   return(trackdf)
-}
-rightPedalShare <- function(l_r_b) {
-  if (is.na(l_r_b)) {
-    rps <- NA
-  } else if (l_r_b >= 256) {
-    # pedal is known to be right if 1st bit set ( l_r_b & 8000H )
-    # ignore top 2 bits ( l_r_b & 3FFF ) and shift 4 decimal places
-    rps <- bitwAnd(as.integer(l_r_b),16383L) / 10000
-  } else if (l_r_b < 256 & l_r_b >= 128) {
-    #  single byte data, top bit means right pedal ( l_r_b & 7FH )
-    rps <- bitwAnd(as.integer(l_r_b),63L) / 100
-  } else {
-    # otherwise not sure which pedal is described
-    rps <- NA
-  }
-  return(rps)
 }

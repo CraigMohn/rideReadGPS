@@ -1,22 +1,31 @@
-read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
+read_fittrack <- function(fitfile,readpkg,createSegs=FALSE) {
 
   requiredVars <- c("altitude.m", "distance.m", "heart_rate.bpm", "speed.m.s",
                     "timestamp.s", "cadence.rpm", "power.watts")
-  if (usefitdc)  {
+  if (readpkg == "fitdc")  {
     if (requireNamespace("fitdc", quietly=TRUE)) {
       dflist <- read_fitdc(fitfile, requiredVars=requiredVars)
     } else {
-      stop("package fitdc muat be installed if usefitdc=TRUE")
+      stop("package fitdc muat be installed")
     }
-  } else if (requireNamespace("fitparseR",quietly=TRUE)) {
-    dflist <- read_fitPython(fitfile, pythonlibrary=pythonlibrary,
-                             requiredVars=requiredVars)
+  } else if (readpkg == "FITfileR") {
+    if (requireNamespace("FITfileR",quietly=TRUE)) {
+      dflist <- read_fitfileR(fitfile, requiredVars=requiredVars)
+    } else {
+      stop("package FITfileR must be installed")
+    }
+  } else if (readpkg == "fitdecodeR") {
+    if (requireNamespace("fitdecodeR",quietly=TRUE)) {
+      dflist <- read_fitPython(fitfile, requiredVars=requiredVars)
+    } else {
+      stop("package fitdecodeR must be installed")
+    }
   } else {
-    stop("package fitparseR must be installed if not using package fitdc")
+    stop(paste0("invalid readpkg = ",readpkg))
   }
-
   records <- dflist[["records"]]
   session <- dflist[["session"]]
+  session$readpkg <- readpkg
   events <- dflist[["events"]]
   if ("device_info" %in% names(dflist)) {
     device_info <- dflist[["device_info"]]
@@ -33,9 +42,6 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
   events$timestamp.s <- as.POSIXct(events$timestamp.s,tz="UTC",origin='1989-12-31')
   records$timestamp <- as.character(records$timestamp.s)
   events$timestamp <- as.character(events$timestamp.s)
-
-#records <<- records
-#session <<- session
 
   #  drop records with no distance measure, they are beyond salvage
   records <- records[!is.na(records$distance.m),]
@@ -65,9 +71,8 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
 
     events <- dplyr::arrange(rbind(events,rbind(new.starts,new.stops)),timestamp.s)
   }
-  recovery_hr <- events[events$event == "recovery_hr",]
+  recovery_hr <- events[!is.na(events$event) & (events$event == "recovery_hr"),]
   recovery_hr <- recovery_hr[,c("timestamp.s","data")]
-
 
   #############################################################################
   # clean up events file to handle unusual power-on/off sequences
@@ -128,7 +133,8 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
   #   power_down+stop_all then power_up+stop_all, delete last pair
   # manual stop which immediately follows: a stop or
   #      precedes a stop with the same timestamp and follows a start
-  mstop.delete <- events$timer_trigger == "manual" &
+  mstop.delete <- !is.na(events$timer_trigger) &
+                  events$timer_trigger == "manual" &
                   events$event_type == "stop_all" &
                   (lag_one(events$event_type) == "stop_all" |
                    (lead_one(events$event_type) == "stop_all" &
@@ -142,7 +148,6 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
                      (lag_one(events$event_type) == "stop_all" &
                       lag_one(events$timestamp.s) == events$timestamp.s))
   events <- events[!(mstop.delete | mstart.delete),]
-
   last.start <- max(which(events$event_type == "start"))
   if (length(events$event_type) > last.start) {
     if (events$event_type[last.start+1] != "stop_all")
@@ -193,11 +198,14 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
     }
   }
 
-#records$timestamp.s <- as.POSIXct(records$timestamp.s,tz="UTC",origin='1989-12-31')
+  #records$timestamp.s <- as.POSIXct(records$timestamp.s,tz="UTC",origin='1989-12-31')
   records <- dplyr::arrange(records[!is.na(records$segment),],timestamp.s)
   if ("position_lat.semicircles" %in% colnames(records)) {
     records$position_lat.dd <- records$position_lat.semicircles*( 180 / 2^31 )
     records$position_lon.dd <- records$position_long.semicircles*( 180 / 2^31 )
+  } else if ("position_long.dd" %in% colnames(records)) {
+    records$position_lon.dd <- records$position_long.dd
+    records$position_long.dd <- NULL
   } else {
     records$position_lat.dd <- NA
     records$position_lon.dd <- NA
@@ -213,6 +221,7 @@ read_fittrack <- function(fitfile,usefitdc,pythonlibrary,createSegs=FALSE) {
         "   hr after 2 min = ",recovery_hr$heart_rate.postride,
         "   change = ",hrdrop,"\n")
   }
+
   return(list(track=records,recovery_hr=recovery_hr,session=session,hrv=hrv,
               device_info=device_info))
 }
@@ -317,18 +326,86 @@ read_fitdc <- function(fitfile,requiredVars) {
   return(list(session=session,records=records,events=events))
 
 }
-read_fitPython <- function(fitfile,pythonlibrary,requiredVars) {
-
-  if (pythonlibrary == "fitdecode") {
+read_fitPython <- function(fitfile,requiredVars) {
     return(fitdecodeR::decode_fit_dfs(fitfile,checkconda=TRUE,
                                       appendSessionUnits = FALSE,
                                       requiredVars=requiredVars))
-  }  else if (pythonlibrary == "fitparse") {
-    return(fitparseR::get_fit_dfs(fitfile,checkconda=TRUE,
-                                  requiredVars=requiredVars))
-  } else {
-    stop("bad argument for pythonlibrary = ",pythonlibrary)
+}
+add_unit_names <- function(tb) {
+  nms <- attributes(tb)$names
+  uns <- rep("",length(nms))
+  for (i in 1:length(nms)) {
+    if (!is.null(attributes(tb[[i]])$units)) uns[i] <- attributes(tb[[i]])$units
+    attributes(tb[[i]])$units<- NULL
   }
+  uns <- gsub("degrees","dd",uns)
+  uns <- gsub("m/s","m.s",uns)
+  uns[uns != ""] <- paste0(".",uns[uns != ""])
+  names(tb) <- (paste0(nms,uns))
+  return(tb)
+}
+strip_vars <- function(tb,prefixvec=NULL) {
+  if (length(prefixvec)>0) {
+      tb <- tb %>% select(!starts_with(prefixvec))
+  }
+  return(tb)
+}
+read_fitfileR <- function(fitfile,requiredVars) {
+  ff <- FITfileR::readFitFile(fitfile)
+#  ff <<- ff
+
+  device_info <- FITfileR::getMessagesByType(ff,"device_info")
+  # create garmin_product variable
+  device_info$garmin_product <- NA_character_
+  device_info$garmin_product[!is.na(device_info$manufacturer) &
+                             device_info$manufacturer=="garmin"] <-
+                      device_info$product[!is.na(device_info$manufacturer) &
+                                            device_info$manufacturer=="garmin"]
+  device_info$garmin_product[is.na(device_info$garmin_product) &
+                             device_info$manufacturer=="garmin"] <- 0
+  # software version 655.35 means NA
+  device_info$software_version[device_info$software_version=="655.35"] <- NA
+
+  session <- FITfileR::getMessagesByType(ff,"session")
+  if (session$avg_cadence==255 & session$max_cadence==255) {
+    session$avg_cadence <- NA
+    session$max_cadence <- NA
+    session$total_cycles <- NA
+  }
+  if (session$avg_power==65535 & session$max_power==65535) {
+    session$avg_power <- NA
+    session$max_power <- NA
+  }
+  for (x in 1:ncol(session)) attr(session[[x]],"units") <- NULL
+#session <<- session
+
+  events <- FITfileR::getMessagesByType(ff,"event") %>%
+      dplyr::rename(timestamp.s=timestamp)
+  #  build variable timer_trigger from data field
+  events$timer_trigger <- NA_character_
+  events$timer_trigger[events$event=="timer" & events$data == 0] <- "manual"
+  events$timer_trigger[events$event=="timer" & events$data == 1] <- "auto"
+  events$data[events$event=="timer"] <- NA
+
+  recordslist <- FITfileR::records(ff)
+  if (is.data.frame(recordslist)) {
+    recordslist <- strip_vars(recordslist,prefixvec = c("passing_","radar_"))
+    records <- add_unit_names(recordslist)
+  } else {
+    recordslist <- lapply(recordslist,strip_vars,prefixvec = c("passing_","radar_"))
+    records <- lapply(recordslist,add_unit_names) %>%
+      bind_rows()
+  }
+#records <<- records
+  records <- records[,!sapply(records,is.list)]
+  records <- dplyr::rename(records,timestamp.s=timestamp) %>%
+             dplyr::arrange(timestamp.s)
+#records <<- records
+#events <<- events
+#device_info <<- device_info
+  records <- addVars(records,varvec=requiredVars)
+  return(list(session=session,records=records,
+              events=events,device_info=device_info))
 }
 addVars <- function(df,varvec)  {
   if (length(varvec) > 0)
